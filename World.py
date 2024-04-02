@@ -1,3 +1,4 @@
+
 import pygame
 from pygame.locals import *
 
@@ -7,6 +8,7 @@ screen_width = 1000
 screen_height = 700
 tile_size = 50
 move_speed = 1
+
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
@@ -70,7 +72,7 @@ class Player:
             self.jumped = False
 
         # Appliquer la gravité
-        self.vel_y += 1 * 0.016 
+        self.vel_y += 1 * 0.012 
         if self.vel_y > 10:  
             self.vel_y = 10
 
