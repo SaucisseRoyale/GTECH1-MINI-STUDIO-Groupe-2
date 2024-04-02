@@ -17,12 +17,13 @@ rect.y = 920
 clock = pygame.time.Clock()
 continuer = True
 moveSpeed = 6
-JumpForce = 10
+JumpForce = 15
 Jumping = False
 doubleJump = False  
 Y_Velocity = 0
 Y_Gravity = 1
 Ground_Y = rect.y
+
 
 while continuer:
     for event in pygame.event.get():
@@ -55,6 +56,7 @@ while continuer:
 
     screen.blit(background, (0, 0))
     screen.blit(image, rect)
+    pygame.draw.rect(screen, (255, 255, 255), rect, 2)
 
     pygame.display.flip()
 
