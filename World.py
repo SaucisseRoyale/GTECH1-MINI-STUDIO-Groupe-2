@@ -49,7 +49,7 @@ class Player:
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.vel_y = 0
+        self.vel_y : float= 0.0
         self.jumped = False
 
     def update(self):
@@ -57,28 +57,38 @@ class Player:
         dy = 0
 
         key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE] and self.jumped == False:
-            self.vel_y = -15
-            self.jumped = True
-        if key[pygame.K_SPACE] == False:
-            self.jumped = False 
-        if key[pygame.K_LEFT]:
+        if key[K_LEFT]:
             dx -= move_speed
-        if key[pygame.K_RIGHT]:
+        if key[K_RIGHT]:
             dx += move_speed
 
-        self.vel_y += 1
-        if self.vel_y > 10:
+        # Initier le saut
+        if key[K_SPACE] and not self.jumped:
+            self.vel_y = -2
+            self.jumped = True
+        if not key[K_SPACE]:
+            self.jumped = False
+
+        # Appliquer la gravité
+        self.vel_y += 1 * 0.016 
+        if self.vel_y > 10:  
             self.vel_y = 10
+
         dy += self.vel_y
 
+        # Vérifier le contact avec le sol
+        if self.rect.bottom + dy > screen_height:
+            dy = screen_height - self.rect.bottom
+            self.vel_y = 0 
+            self.jumped = False
 
+        # Mise à jour des coordonnées du joueur
         self.rect.x += dx
         self.rect.y += dy
-        if self.rect.bottom > screen_height:
-            self.rect.bottom = screen_height
-            dy = 0
+
+
         screen.blit(self.image, self.rect)
+
 
 world_data = [
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
