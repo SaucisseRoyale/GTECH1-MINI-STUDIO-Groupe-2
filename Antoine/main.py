@@ -77,6 +77,12 @@ class Player :
         self.rect.x = x
         self.rect.y = y
 
+        # Variables wall jump
+        self.canWallJump : bool = False
+        self.wallJumpForce : float = 10
+
+
+
     def update(self) :
         moveAlongX = 0
         moveAlongY = 0
