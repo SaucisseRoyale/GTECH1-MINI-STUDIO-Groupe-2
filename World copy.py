@@ -1,6 +1,7 @@
 import pygame
 import time
 from pygame.locals import *
+import pickle
 
 pygame.init()
 
@@ -13,15 +14,45 @@ clock = pygame.time.Clock()
 fps = 60
 dt = 0
 
-
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
 bg_img = pygame.image.load("sky-blue-color-solid-background-1920x1080.png").convert()
 
+class Camera:
+    def __init__(self, width, height):
+        self.camera = pygame.Rect(0, 0, width, height)
+        self.width = width
+        self.height = height
+
+    def apply(self, entity):
+        return entity.move(self.camera.topleft)
+
+    def update(self, target):
+        x = -target.rect.centerx + int(screen_width / 2)
+        y = -target.rect.centery + int(screen_height / 2)
+
+        # limit scrolling to map size
+        x = min(0, x)  # left
+        y = min(0, y)  # top
+        x = max(-(self.width - screen_width), x)  # right
+        y = max(-(self.height - screen_height), y)  # bottom
+
+        self.camera = pygame.Rect(x, y, self.width, self.height)
+
 class World:
     def __init__(self, data):
         self.tile_list = []
+
+        if not data:  # Vérifie si data est vide
+            print("world_data est vide!")
+            self.width = 0
+            self.height = 0
+            return  # Sort du constructeur pour éviter d'autres erreurs
+
+        self.width = len(data[0]) * tile_size
+        self.height = len(data) * tile_size
+
         dirt_img = pygame.image.load("dirt.png").convert_alpha()
         grass_img = pygame.image.load("grass.png").convert_alpha()
 
@@ -34,19 +65,21 @@ class World:
                     img_rect = img.get_rect()
                     img_rect.x = col_count * tile_size
                     img_rect.y = row_count * tile_size
-                    self.tile_list.append((img, img_rect))
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
                 elif tile == 2:
                     img = pygame.transform.scale(grass_img, (tile_size, tile_size))
                     img_rect = img.get_rect()
                     img_rect.x = col_count * tile_size
                     img_rect.y = row_count * tile_size
-                    self.tile_list.append((img, img_rect))
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
                 col_count += 1
             row_count += 1
 
-    def draw(self):
+    def draw(self, camera):
         for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
+            screen.blit(tile[0], camera.apply(tile[1]))
 
 class Player:
     def __init__(self, x, y):
@@ -61,13 +94,7 @@ class Player:
         self.on_ground = False
         self.jump_power = 15
         self.gravity = 1
-        self.dash_power = 50
-        self.dash_speed = 0
-        self.dash_acceleration = 1
-        self.dash_duration = 0.2  # Durée du dash en secondes
-        self.dash_timer = 0
-        self.allow_dash = True
-        
+        self.dash = True
 
     def update(self):
         dx = 0
@@ -85,23 +112,15 @@ class Player:
             self.on_ground = False
 
         # Dash
-        if key[K_LSHIFT] and self.dash_timer <= 0 and self.allow_dash and not self.on_ground:
-            self.dash_speed += self.dash_acceleration
-            if self.dash_speed >= self.dash_power:
-                self.dash_speed = self.dash_power
-                self.dash_timer = self.dash_duration
-                self.allow_dash = False
-        elif self.dash_timer > 0:
-            self.dash_timer -= dt
-        elif self.on_ground:
-            self.allow_dash = True
-
+        if key[K_LSHIFT] and key[K_q] and self.dash:
+            dx -= 20
+            time.sleep(0.2)
+            self.dash = False
 
         # Apply gravity
         self.vel_y += self.gravity
         if self.vel_y > 10:
             self.vel_y = 10
-
         dy += self.vel_y
 
         # Check collisions
@@ -113,7 +132,6 @@ class Player:
                 if self.vel_y < 0:
                     dy = tile[1].bottom - self.rect.top
                     self.vel_y = 0
-                    self.dash = False
                 elif self.vel_y >= 0:
                     dy = tile[1].top - self.rect.bottom
                     self.vel_y = 0
@@ -123,36 +141,26 @@ class Player:
         self.rect.x += dx
         self.rect.y += dy
 
-        screen.blit(self.image, self.rect)
+    def draw(self, camera):
+        screen.blit(self.image, camera.apply(self.rect))
 
-world_data = [
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 1, 1],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 1, 1, 1, 0, 0, 1, 1],
-[0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[0, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
+
+with open('map/1map.txt', 'r') as file:
+    world_data = [list(map(int, line.strip().split(','))) for line in file]
 
 world = World(world_data)
 player = Player(100, screen_height - 130)
+camera = Camera(world.width, world.height)
 
 run = True
 while run:
     start = pygame.time.get_ticks() 
     screen.blit(bg_img, (0, 0))
 
-    world.draw()
+    camera.update(player)
+    world.draw(camera)
     player.update()
+    player.draw(camera)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
