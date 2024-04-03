@@ -193,7 +193,7 @@ def main() :
         # Initialisation du jeu / décor
         clock.tick(120)
         screen.blit(background, (0,0))
-        screen.blit(font.render(str(rect_player.jump_count), True, (0,0,0) ), (0,0))
+        screen.blit(font.render(str(rect_player.jump_count), True, (0,0,0) ), (0,0)) # Déboguage variable : compteur de sauts
 
         for event in pygame.event.get() : 
             if event.type == pygame.QUIT :
