@@ -7,7 +7,7 @@ pygame.init()
 screen_width = 1000
 screen_height = 700
 tile_size = 50
-move_speed = 5
+move_speed = 8
 
 clock = pygame.time.Clock()
 fps = 60
@@ -60,14 +60,13 @@ class Player:
         self.vel_y = 0
         self.on_ground = False
         self.jump_power = 15
-        self.gravity = 1
-        self.dash_power = 50
+        self.gravity = 1.25
+        self.dash_power = 40
         self.dash_speed = 0
-        self.dash_acceleration = 1
-        self.dash_duration = 0.2  # Durée du dash en secondes
+        self.dash_acceleration = 5
+        self.dash_duration = 0.1  # Durée du dash en secondes
         self.dash_timer = 0
         self.allow_dash = True
-        
 
     def update(self):
         dx = 0
@@ -76,8 +75,10 @@ class Player:
         key = pygame.key.get_pressed()
         if key[K_q]:
             dx -= move_speed
+            self.dash_direction = -1
         if key[K_d]:
             dx += move_speed
+            self.dash_direction = 1
 
         # Jump
         if key[K_SPACE] and self.on_ground:
@@ -91,8 +92,12 @@ class Player:
                 self.dash_speed = self.dash_power
                 self.dash_timer = self.dash_duration
                 self.allow_dash = False
+            # Mettre à jour la position du joueur en fonction de la vitesse de dash et de la direction
+            self.rect.x += self.dash_speed * self.dash_direction
+            self.vel_y = 0
         elif self.dash_timer > 0:
             self.dash_timer -= dt
+            self.dash_speed = 0
         elif self.on_ground:
             self.allow_dash = True
 

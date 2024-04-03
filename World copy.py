@@ -9,15 +9,38 @@ screen_width = 1000
 screen_height = 700
 tile_size = 50
 move_speed = 5
+scroll_left = False
+scroll_right = False
+scroll = 0
+scroll_speed = 1
+level = 0
+
 
 clock = pygame.time.Clock()
 fps = 60
 dt = 0
 
+#define colours
+GREEN = (144, 201, 120)
+WHITE = (255, 255, 255)
+RED = (200, 25, 25)
+
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
-bg_img = pygame.image.load("sky-blue-color-solid-background-1920x1080.png").convert()
+pine1_img = pygame.image.load('img/pine1.png').convert_alpha()
+pine2_img = pygame.image.load('img/pine2.png').convert_alpha()
+mountain_img = pygame.image.load('img/mountain.png').convert_alpha()
+sky_img = pygame.image.load('img/sky_cloud.png').convert_alpha()
+
+def draw_bg():
+	screen.fill(GREEN)
+	width = sky_img.get_width()
+	for x in range(4):
+		screen.blit(sky_img, ((x * width) - scroll * 0.5, 0))
+		screen.blit(mountain_img, ((x * width) - scroll * 0.6, screen_height - mountain_img.get_height() - 300))
+		screen.blit(pine1_img, ((x * width) - scroll * 0.7, screen_height - pine1_img.get_height() - 150))
+		screen.blit(pine2_img, ((x * width) - scroll * 0.8, screen_height - pine2_img.get_height()))
 
 class Camera:
     def __init__(self, width, height):
@@ -33,10 +56,10 @@ class Camera:
         y = -target.rect.centery + int(screen_height / 2)
 
         # limit scrolling to map size
-        x = min(0, x)  # left
-        y = min(0, y)  # top
-        x = max(-(self.width - screen_width), x)  # right
-        y = max(-(self.height - screen_height), y)  # bottom
+        x = min(0, x)  
+        y = min(0, y)  
+        x = max(-(self.width - screen_width), x) 
+        y = max(-(self.height - screen_height), y) 
 
         self.camera = pygame.Rect(x, y, self.width, self.height)
 
@@ -44,11 +67,11 @@ class World:
     def __init__(self, data):
         self.tile_list = []
 
-        if not data:  # Vérifie si data est vide
+        if not data:
             print("world_data est vide!")
             self.width = 0
             self.height = 0
-            return  # Sort du constructeur pour éviter d'autres erreurs
+            return 
 
         self.width = len(data[0]) * tile_size
         self.height = len(data) * tile_size
@@ -94,7 +117,13 @@ class Player:
         self.on_ground = False
         self.jump_power = 15
         self.gravity = 1
-        self.dash = True
+        self.dash_power = 40
+        self.dash_speed = 0
+        self.dash_acceleration = 5
+        self.dash_duration = 0.1  # Durée du dash en secondes
+        self.dash_timer = 0
+        self.allow_dash = True
+        self.dash_direction = 0  # Ajout de la direction du dash
 
     def update(self):
         dx = 0
@@ -111,11 +140,26 @@ class Player:
             self.vel_y = -self.jump_power
             self.on_ground = False
 
+        if key[K_LSHIFT] and self.dash_timer <= 0 and self.allow_dash and not self.on_ground:
+            # Détermination de la direction du dash
+            self.dash_direction = 1 if key[K_d] else -1 if key[K_q] else 0
+
+            self.dash_speed += self.dash_acceleration
+            if self.dash_speed >= self.dash_power:
+                self.dash_speed = self.dash_power
+                self.dash_timer = self.dash_duration
+                self.allow_dash = False
+            # Mettre à jour la position du joueur en fonction de la vitesse de dash et de la direction
+            self.rect.x += self.dash_speed * self.dash_direction
+            self.vel_y = 0
+        elif self.dash_timer > 0:
+            self.dash_timer -= dt
+            self.dash_speed = 0
+        elif self.on_ground:
+            self.allow_dash = True
+
         # Dash
-        if key[K_LSHIFT] and key[K_q] and self.dash:
-            dx -= 20
-            time.sleep(0.2)
-            self.dash = False
+        # Supprimer cette partie de code liée au dash que vous avez commentée
 
         # Apply gravity
         self.vel_y += self.gravity
@@ -145,9 +189,11 @@ class Player:
         screen.blit(self.image, camera.apply(self.rect))
 
 
-with open('map/1map.txt', 'r') as file:
-    world_data = [list(map(int, line.strip().split(','))) for line in file]
 
+file_path = 'C:/Users/zcolucci/Documents/GitHub/GTECH1-MINI-STUDIO-Groupe-2/map/2map.txt'
+
+with open(file_path, 'r') as file:
+    world_data = [list(map(int, line.strip().split(','))) for line in file]
 world = World(world_data)
 player = Player(100, screen_height - 130)
 camera = Camera(world.width, world.height)
@@ -155,7 +201,7 @@ camera = Camera(world.width, world.height)
 run = True
 while run:
     start = pygame.time.get_ticks() 
-    screen.blit(bg_img, (0, 0))
+    draw_bg()
 
     camera.update(player)
     world.draw(camera)
@@ -172,6 +218,9 @@ while run:
     dt = pygame.time.get_ticks() - start
     dt /= 1000 
 
+
+
     pygame.display.update()
+    
 
 pygame.quit()
