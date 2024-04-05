@@ -20,13 +20,13 @@ font = pygame.font.SysFont('Consolas', 30)
 # Initialisation des différents effets sonores utilisés
 pygame.mixer.init()
 # Saut
-jump_sound = pygame.mixer.Sound("jump.wav")
+jump_sound = pygame.mixer.Sound("Antoine/assets/jump.wav")
 jump_sound.set_volume(50)
 # Saut mural
-wallJump_sound = pygame.mixer.Sound("wall_jump.wav")
+wallJump_sound = pygame.mixer.Sound("Antoine/assets/wall_jump.wav")
 wallJump_sound.set_volume(50)
 # Mort/chute dans le vide
-fallVoid_sound = pygame.mixer.Sound("fall_void.wav")
+fallVoid_sound = pygame.mixer.Sound("Antoine/assets/fall_void.wav")
 fallVoid_sound.set_volume(50)
 
 
@@ -34,8 +34,8 @@ fallVoid_sound.set_volume(50)
 class World:
     def __init__(self, data):
         self.tile_list = []
-        dirt_img = pygame.image.load("Antoine/tile_0001.png").convert_alpha()
-        grass_img = pygame.image.load("Antoine/tile_0002.png").convert_alpha()
+        dirt_img = pygame.image.load("Antoine/assets/tile_0001.png").convert_alpha()
+        grass_img = pygame.image.load("Antoine/assets/tile_0002.png").convert_alpha()
 
         row_count = 0
         for row in data:
@@ -65,7 +65,7 @@ class World:
 class Player :
     # Variables JOUEUR
     def __init__(self, x, y) -> None:
-        img = pygame.image.load("Antoine/sanic.gif")
+        img = pygame.image.load("Antoine/assets/sanic.gif")
         self.icon = pygame.transform.scale(img, (56,56))
         self.rect = self.icon.get_rect()
         self.width = self.icon.get_width()
@@ -104,6 +104,9 @@ class Player :
             moveAlongY = y_screen - self.rect.bottom
             self.velocity = 0 
             self.jump_count += 1
+
+        # Vérifier les collisions avec des pans de murs verticaux
+        #if self.rect.left 
 
 
         world_data = [
@@ -173,11 +176,11 @@ class Player :
 # MAIN
 def main() :
     # Preparation et lancement de la musique
-    pygame.mixer.music.load(filename="Antoine/music.mp3")
+    pygame.mixer.music.load(filename="Antoine/assets/music.mp3")
     pygame.mixer.music.play(-1)
 
     # Préparation du fond du niveau
-    background = pygame.image.load("Antoine/background.png").convert()
+    background = pygame.image.load("Antoine/assets/background.png").convert()
     background = pygame.transform.scale(background, (x_screen, y_screen))
 
     isRunning : bool = True
