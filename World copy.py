@@ -8,7 +8,7 @@ pygame.init()
 screen_width = 1000
 screen_height = 700
 tile_size = 50
-move_speed = 5
+move_speed = 10
 scroll_left = False
 scroll_right = False
 scroll = 0
@@ -34,13 +34,24 @@ mountain_img = pygame.image.load('img/mountain.png').convert_alpha()
 sky_img = pygame.image.load('img/sky_cloud.png').convert_alpha()
 
 def draw_bg():
-	screen.fill(GREEN)
-	width = sky_img.get_width()
-	for x in range(4):
-		screen.blit(sky_img, ((x * width) - scroll * 0.5, 0))
-		screen.blit(mountain_img, ((x * width) - scroll * 0.6, screen_height - mountain_img.get_height() - 300))
-		screen.blit(pine1_img, ((x * width) - scroll * 0.7, screen_height - pine1_img.get_height() - 150))
-		screen.blit(pine2_img, ((x * width) - scroll * 0.8, screen_height - pine2_img.get_height()))
+    screen.fill(GREEN)
+    width = sky_img.get_width()
+    total_width = screen_width + width  
+    num_images = total_width // width + 1 
+    
+    for x in range(num_images):
+        
+        sky_x_pos = (x * width) - scroll * 0.5
+        mountain_x_pos = (x * width) - scroll * 0.6
+        pine1_x_pos = (x * width) - scroll * 0.7
+        pine2_x_pos = (x * width) - scroll * 0.8
+        
+        
+        screen.blit(sky_img, (sky_x_pos, 0))
+        screen.blit(mountain_img, (mountain_x_pos, screen_height - mountain_img.get_height() - 300))
+        screen.blit(pine1_img, (pine1_x_pos, screen_height - pine1_img.get_height() - 150))
+        screen.blit(pine2_img, (pine2_x_pos, screen_height - pine2_img.get_height()))
+
 
 class Camera:
     def __init__(self, width, height):
@@ -52,6 +63,8 @@ class Camera:
         return entity.move(self.camera.topleft)
 
     def update(self, target):
+        global scroll 
+        
         x = -target.rect.centerx + int(screen_width / 2)
         y = -target.rect.centery + int(screen_height / 2)
 
@@ -62,6 +75,7 @@ class Camera:
         y = max(-(self.height - screen_height), y) 
 
         self.camera = pygame.Rect(x, y, self.width, self.height)
+        scroll = -x  
 
 class World:
     def __init__(self, data):
@@ -97,8 +111,9 @@ class World:
         tile19 = pygame.image.load("img/grass/18.png").convert_alpha()
         tile20 = pygame.image.load("img/grass/19.png").convert_alpha()
         tile21 = pygame.image.load("img/grass/20.png").convert_alpha()
+        tile22 = pygame.image.load("img/grass/21.png").convert_alpha()
 
-        tile_images = {
+        self.tile_images = {
             0: dirt_img,
             1: grass_img,
             2: left_grass_corner_img,
@@ -120,19 +135,20 @@ class World:
             18 : tile19,
             19 : tile20,
             20 : tile21,
+            21 : tile22,
         }
 
         row_count = 0
         for row in data:
             col_count = 0
             for tile in row:
-                # Sélectionnez l'image basée sur le type de tuile en utilisant le dictionnaire
-                if tile in tile_images:
-                    img = pygame.transform.scale(tile_images[tile], (tile_size, tile_size))
+                if tile in self.tile_images:
+                    img = pygame.transform.scale(self.tile_images[tile], (tile_size, tile_size))
                     img_rect = img.get_rect()
                     img_rect.x = col_count * tile_size
                     img_rect.y = row_count * tile_size
-                    tile_data = (img, img_rect)
+                    mask = pygame.mask.from_surface(img) 
+                    tile_data = (img, img_rect, tile, mask)  
                     self.tile_list.append(tile_data)
                 col_count += 1
             row_count += 1
@@ -150,9 +166,10 @@ class Player:
         self.height = self.image.get_height()
         self.rect.x = x
         self.rect.y = y
+        self.mask = pygame.mask.from_surface(self.image)
         self.vel_y = 0
         self.on_ground = False
-        self.jump_power = 15
+        self.jump_power = 20
         self.gravity = 1
         self.dash_power = 40
         self.dash_speed = 0
@@ -172,6 +189,8 @@ class Player:
         if key[K_d]:
             dx += move_speed
 
+        if key[K_ESCAPE]:
+            QUIT()
         # Jump
         if key[K_SPACE] and self.on_ground:
             self.vel_y = -self.jump_power
@@ -195,8 +214,6 @@ class Player:
         elif self.on_ground:
             self.allow_dash = True
 
-        # Dash
-        # Supprimer cette partie de code liée au dash que vous avez commentée
 
         # Apply gravity
         self.vel_y += self.gravity
@@ -205,11 +222,17 @@ class Player:
         dy += self.vel_y
 
         # Check collisions
+        # Check collisions
         for tile in world.tile_list:
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
-
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                if tile[2] == 21:  
+                    self.vel_y = -self.jump_power * 1.5
+                    self.on_ground = False
+                    break 
+
+                # Gestion des autres collisions
                 if self.vel_y < 0:
                     dy = tile[1].bottom - self.rect.top
                     self.vel_y = 0
@@ -218,9 +241,12 @@ class Player:
                     self.vel_y = 0
                     self.on_ground = True
 
+
         # Update player coordinates
         self.rect.x += dx
         self.rect.y += dy
+
+
 
     def draw(self, camera):
         screen.blit(self.image, camera.apply(self.rect))
@@ -238,6 +264,8 @@ camera = Camera(world.width, world.height)
 run = True
 while run:
     start = pygame.time.get_ticks() 
+
+    
     draw_bg()
 
     camera.update(player)
