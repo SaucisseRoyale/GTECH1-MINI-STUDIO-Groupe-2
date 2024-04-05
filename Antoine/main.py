@@ -84,24 +84,24 @@ class Player :
 
 
     def update(self) :
-        moveAlongX = 0
-        moveAlongY = 0
+        self.moveAlongX = 0
+        self.moveAlongY = 0
         
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_q] : # GAUCHE
             # Son de déplacement
-            moveAlongX -= self.speed
+            self.moveAlongX -= self.speed
 
         elif keys[pygame.K_d] : # DROITE
             # Son de déplacement
-            moveAlongX += self.speed 
+            self.moveAlongX += self.speed 
 
         
 
         # Vérifier le contact avec les bords de l'écran
-        if self.rect.bottom + moveAlongY > x_screen:
-            moveAlongY = y_screen - self.rect.bottom
+        if self.rect.bottom + self.moveAlongY > x_screen:
+            self.moveAlongY = y_screen - self.rect.bottom
             self.velocity = 0 
             self.jump_count += 1
 
@@ -133,47 +133,48 @@ class Player :
         # Vérifier les collisions avec le sol
         for tile in world.tile_list:
 
-            if tile[1].colliderect((self.rect.x + moveAlongX, self.rect.y), (self.width, self.height)):
-                moveAlongX = 0
+            if tile[1].colliderect((self.rect.x + self.moveAlongX, self.rect.y), (self.width, self.height)):
+                self.moveAlongX = 0
 
-            if tile[1].colliderect((self.rect.x, self.rect.y + moveAlongY), (self.width, self.height)):
+            if tile[1].colliderect((self.rect.x, self.rect.y + self.moveAlongY), (self.width, self.height)):
                 
                 if self.velocity < 0:
-                    moveAlongY = tile[1].bottom - self.rect.top
+                    self.moveAlongY = tile[1].bottom - self.rect.top
                     self.velocity = 0
 
                 elif self.velocity >= 0:
-                    moveAlongY = tile[1].top - self.rect.bottom
+                    self.moveAlongY = tile[1].top - self.rect.bottom
                     self.velocity = 0
 
                     if self.jump_count == 0 :
                         self.jump_count += 1
 
-        def jump():    
-            if keys[pygame.K_SPACE] and self.jump_count > 0 : # SAUT
-                jump_sound.play(0) 
-                self.jump_count -= 1 # On enleve un saut du compteur (=/= 0 en vue du double saut)
-                moveAlongY -= 100
-            
+    
+        
         # Appliquer la gravité
         self.velocity += 1 * 0.016 
         if self.velocity > 10:  
             self.velocity = 10
 
-        moveAlongY += self.velocity
+        self.moveAlongY += self.velocity
 
 
 
 
 
         # Mise à jour des coordonnées du joueur
-        self.rect.x += moveAlongX
-        self.rect.y += moveAlongY
+        self.rect.x += self.moveAlongX
+        self.rect.y += self.moveAlongY
         
         # Affichage
         world.draw()
         screen.blit(self.icon, self.rect)
 
+
+def jump(player : Player):
+    jump_sound.play(0) 
+    player.jump_count -= 1 # On enleve un saut du compteur (=/= 0 en vue du double saut)
+    player.moveAlongY -= 100
 
 
     
@@ -188,23 +189,19 @@ def main() :
     background = pygame.image.load("Antoine/assets/background.png").convert()
     background = pygame.transform.scale(background, (x_screen, y_screen))
 
-    isRunning : bool = True
-
     # Variables GLOBALES
     isRunning : bool = True
     gravity : int = 1
 
-
-
-
-
     rect_player = Player(520, 340)
-    
 
     # BOUCLE DE JEU
     while isRunning :
 
         # Initialisation du jeu / décor
+
+        
+
         clock.tick(120)
         screen.blit(background, (0,0))
         screen.blit(font.render(str(rect_player.jump_count), True, (0,0,0) ), (0,0)) # Déboguage variable : compteur de sauts
@@ -215,6 +212,9 @@ def main() :
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 isRunning = False
+            
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
+                jump(rect_player)
 
         # Actualisation de l'affichage
        
