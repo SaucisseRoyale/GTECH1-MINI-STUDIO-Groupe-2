@@ -76,27 +76,64 @@ class World:
         self.width = len(data[0]) * tile_size
         self.height = len(data) * tile_size
 
-        dirt_img = pygame.image.load("dirt.png").convert_alpha()
-        grass_img = pygame.image.load("grass.png").convert_alpha()
+        dirt_img = pygame.image.load("img/grass/0.png").convert_alpha()
+        grass_img = pygame.image.load("img/grass/1.png").convert_alpha()
+        left_grass_corner_img = pygame.image.load("img/grass/2.png").convert_alpha()
+        right_grass_corner_img = pygame.image.load("img/grass/3.png").convert_alpha()
+        left_grass_img = pygame.image.load("img/grass/4.png").convert_alpha()
+        right_grass_img = pygame.image.load("img/grass/5.png").convert_alpha()
+        dirt2_img = pygame.image.load("img/grass/6.png").convert_alpha()
+        left_bottom_grass_corner_img = pygame.image.load("img/grass/7.png").convert_alpha()
+        right_bottom_grass_corner_img = pygame.image.load("img/grass/8.png").convert_alpha()
+        left10 = pygame.image.load("img/grass/9.png").convert_alpha()
+        right11 = pygame.image.load("img/grass/10.png").convert_alpha()
+        jsp12 = pygame.image.load("img/grass/11.png").convert_alpha()
+        tile13 = pygame.image.load("img/grass/12.png").convert_alpha()
+        tile14 = pygame.image.load("img/grass/13.png").convert_alpha()
+        tile15 = pygame.image.load("img/grass/14.png").convert_alpha()
+        tile16 = pygame.image.load("img/grass/15.png").convert_alpha()
+        tile17 = pygame.image.load("img/grass/16.png").convert_alpha()
+        tile18 = pygame.image.load("img/grass/17.png").convert_alpha()
+        tile19 = pygame.image.load("img/grass/18.png").convert_alpha()
+        tile20 = pygame.image.load("img/grass/19.png").convert_alpha()
+        tile21 = pygame.image.load("img/grass/20.png").convert_alpha()
+
+        tile_images = {
+            0: dirt_img,
+            1: grass_img,
+            2: left_grass_corner_img,
+            3: right_grass_corner_img,
+            4: left_grass_img,
+            5: right_grass_img,
+            6: dirt2_img,
+            7: left_bottom_grass_corner_img,
+            8: right_bottom_grass_corner_img,
+            9: left10, 
+            10: right11,
+            11: jsp12,
+            12 : tile13,
+            13 : tile14,
+            14 : tile15,
+            15 : tile16,
+            16 : tile17,
+            17 : tile18,
+            18 : tile19,
+            19 : tile20,
+            20 : tile21,
+        }
 
         row_count = 0
         for row in data:
             col_count = 0
             for tile in row:
-                if tile == 1:
-                    img = pygame.transform.scale(dirt_img, (tile_size, tile_size))
+                # Sélectionnez l'image basée sur le type de tuile en utilisant le dictionnaire
+                if tile in tile_images:
+                    img = pygame.transform.scale(tile_images[tile], (tile_size, tile_size))
                     img_rect = img.get_rect()
                     img_rect.x = col_count * tile_size
                     img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                elif tile == 2:
-                    img = pygame.transform.scale(grass_img, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
+                    tile_data = (img, img_rect)
+                    self.tile_list.append(tile_data)
                 col_count += 1
             row_count += 1
 
