@@ -130,13 +130,13 @@ class Player :
         world = World(world_data)
 
 
-
         # Vérifier les collisions avec le sol
         for tile in world.tile_list:
-            if tile[1].colliderect(self.rect.x + moveAlongX, self.rect.y, self.width, self.height):
+
+            if tile[1].colliderect((self.rect.x + moveAlongX, self.rect.y), (self.width, self.height)):
                 moveAlongX = 0
 
-            if tile[1].colliderect(self.rect.x, self.rect.y + moveAlongY, self.width, self.height):
+            if tile[1].colliderect((self.rect.x, self.rect.y + moveAlongY), (self.width, self.height)):
                 
                 if self.velocity < 0:
                     moveAlongY = tile[1].bottom - self.rect.top
@@ -149,17 +149,19 @@ class Player :
                     if self.jump_count == 0 :
                         self.jump_count += 1
 
-        if keys[pygame.K_SPACE] and self.jump_count > 0 : # SAUT
-            jump_sound.play(0) 
-            self.jump_count -= 1 # On enleve un saut du compteur (=/= 0 en vue du double saut)
-            moveAlongY -= 2
-        
+        def jump():    
+            if keys[pygame.K_SPACE] and self.jump_count > 0 : # SAUT
+                jump_sound.play(0) 
+                self.jump_count -= 1 # On enleve un saut du compteur (=/= 0 en vue du double saut)
+                moveAlongY -= 100
+            
         # Appliquer la gravité
         self.velocity += 1 * 0.016 
         if self.velocity > 10:  
             self.velocity = 10
 
         moveAlongY += self.velocity
+
 
 
 
