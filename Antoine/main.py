@@ -137,12 +137,15 @@ class Player :
                 moveAlongX = 0
 
             if tile[1].colliderect(self.rect.x, self.rect.y + moveAlongY, self.width, self.height):
+                
                 if self.velocity < 0:
                     moveAlongY = tile[1].bottom - self.rect.top
                     self.velocity = 0
+
                 elif self.velocity >= 0:
                     moveAlongY = tile[1].top - self.rect.bottom
                     self.velocity = 0
+
                     if self.jump_count == 0 :
                         self.jump_count += 1
 
