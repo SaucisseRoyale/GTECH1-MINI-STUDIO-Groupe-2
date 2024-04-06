@@ -54,7 +54,7 @@ class Player():
         self.gravity : float = 1 # Force de chute
         
         # Collisions
-        self.isOnGround : bool = True
+        self.isOnGround : bool = True # état sur le sol
 
     # ------ Fonctions
 
@@ -69,70 +69,59 @@ class Player():
 
     def Gravity(self) : # Le personnage subit les effets de la gravité
         print("La fonction Gravity est appellée \n")
-        while self.pos_y + self.move_y < ground.top :
-            self.move_y += (self.gravity * (clock.get_fps()) / 60) # On fait descendre le joueur de plus en plus vite
+        while (self.pos_y + self.move_y) <= ground.top :
+            self.move_y += self.gravity
+
             print("pos : ", self.pos_y," | move : ", self.move_y," | gravity : ",  self.gravity)
-            self.pos_y -= self.move_y
+            
+            self.pos_y += self.move_y
 
 
 
     def Jump(self) : # Le personnage saute
         if self.isOnGround == False : # Si le personnage est en l'air / sur un mur, on sort de la fonction
-            return 
+            print("Je ne peux pas sauter \n")
+            return
         elif self.isOnGround == True :
             # Faire une augmentation progressive de la hauteur / descente progressive
-            isReached : int = 1
-            
-            while isReached < 10 :
-
-                self.move_y += self.jump_force * (isReached / 2)
-                isReached += 1
-
-            self.Gravity()
+            print("Je saute \n")
+            self.move_y -= self.jump_force
+            return
 
 
-
-
-            
 
     def Update(self) :
         print("La fonction Update est appellée \n")
 
         keys = pygame.key.get_pressed()
-        
+
         if keys[pygame.K_q] :
             self.Move(0)
         if keys[pygame.K_d] :
             self.Move(1)
 
-        if pygame.K_SPACE :
-            self.Jump()
+        for event in pygame.event.get() :
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
+                self.Jump()
 
         if self.pos_y > ground.y :
-            self.Gravity()    
-            print("Je suis au niveau du sol", self.move_y, " \n")
+            self.Gravity()
+            print("Je suis sur le sol \n")
             self.isOnGround == True
 
         # Actualisation de la position
         self.pos_x += self.move_x 
         self.pos_y += self.move_y
+        #
+        self.rect = (self.pos_x, self.pos_y)
 
+        # Réinitialisation des variables de déplacement
         self.move_x = 0
         self.move_y = 0
-
-        self.rect = (self.pos_x, self.pos_y)
+        
         print("Je suis en ", self.rect, "\n")
+
         screen.blit(self.icon, self.rect) # Rafraîchissement de l'affichage
-
-
-
-
-    
-
-    
-
-
-
 
 
 
@@ -140,12 +129,6 @@ def main() :
 
     player : Player = Player(640, 640)
     clock.tick(60)
-
-
-
-
-    
-
 
     isRunning : bool = True
 
@@ -158,9 +141,6 @@ def main() :
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: # Si on appuie sur échap
                 isRunning = False
-        
-        
-        
 
         # Actualisation de l'affichage
         screen.blit(background, (0,0))
