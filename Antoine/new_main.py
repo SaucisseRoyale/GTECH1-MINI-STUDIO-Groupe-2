@@ -67,14 +67,14 @@ class Player():
 
 
 
-    def Gravity(self) : # Le personnage subit les effets de la gravité
+    """def Gravity(self) : # Le personnage subit les effets de la gravité
         print("La fonction Gravity est appellée \n")
         while (self.pos_y + self.move_y) <= ground.top :
             self.move_y += self.gravity
 
             print("pos : ", self.pos_y," | move : ", self.move_y," | gravity : ",  self.gravity)
             
-            self.pos_y += self.move_y
+            self.pos_y += self.move_y"""
 
 
 
@@ -96,18 +96,21 @@ class Player():
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_q] :
+            print("Je vais à gauche \n")
             self.Move(0)
         if keys[pygame.K_d] :
+            print("Je vais à droite \n")
             self.Move(1)
 
         for event in pygame.event.get() :
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
+                print("Je saute")
                 self.Jump()
 
-        if self.pos_y > ground.y :
+        """if self.pos_y > ground.y :
             self.Gravity()
             print("Je suis sur le sol \n")
-            self.isOnGround == True
+            self.isOnGround == True"""
 
         # Actualisation de la position
         self.pos_x += self.move_x 
