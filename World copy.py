@@ -90,54 +90,18 @@ class World:
         self.width = len(data[0]) * tile_size
         self.height = len(data) * tile_size
 
-        dirt_img = pygame.image.load("img/grass/0.png").convert_alpha()
-        grass_img = pygame.image.load("img/grass/1.png").convert_alpha()
-        left_grass_corner_img = pygame.image.load("img/grass/2.png").convert_alpha()
-        right_grass_corner_img = pygame.image.load("img/grass/3.png").convert_alpha()
-        left_grass_img = pygame.image.load("img/grass/4.png").convert_alpha()
-        right_grass_img = pygame.image.load("img/grass/5.png").convert_alpha()
-        dirt2_img = pygame.image.load("img/grass/6.png").convert_alpha()
-        left_bottom_grass_corner_img = pygame.image.load("img/grass/7.png").convert_alpha()
-        right_bottom_grass_corner_img = pygame.image.load("img/grass/8.png").convert_alpha()
-        left10 = pygame.image.load("img/grass/9.png").convert_alpha()
-        right11 = pygame.image.load("img/grass/10.png").convert_alpha()
-        jsp12 = pygame.image.load("img/grass/11.png").convert_alpha()
-        tile13 = pygame.image.load("img/grass/12.png").convert_alpha()
-        tile14 = pygame.image.load("img/grass/13.png").convert_alpha()
-        tile15 = pygame.image.load("img/grass/14.png").convert_alpha()
-        tile16 = pygame.image.load("img/grass/15.png").convert_alpha()
-        tile17 = pygame.image.load("img/grass/16.png").convert_alpha()
-        tile18 = pygame.image.load("img/grass/17.png").convert_alpha()
-        tile19 = pygame.image.load("img/grass/18.png").convert_alpha()
-        tile20 = pygame.image.load("img/grass/19.png").convert_alpha()
-        tile21 = pygame.image.load("img/grass/20.png").convert_alpha()
-        tile22 = pygame.image.load("img/grass/21.png").convert_alpha()
+        # Déclaration d'un dictionnaire pour stocker les images des tuiles
+        tile_images = {}
 
-        self.tile_images = {
-            0: dirt_img,
-            1: grass_img,
-            2: left_grass_corner_img,
-            3: right_grass_corner_img,
-            4: left_grass_img,
-            5: right_grass_img,
-            6: dirt2_img,
-            7: left_bottom_grass_corner_img,
-            8: right_bottom_grass_corner_img,
-            9: left10, 
-            10: right11,
-            11: jsp12,
-            12 : tile13,
-            13 : tile14,
-            14 : tile15,
-            15 : tile16,
-            16 : tile17,
-            17 : tile18,
-            18 : tile19,
-            19 : tile20,
-            20 : tile21,
-            21 : tile22,
-        }
+        # Boucle pour charger les tuiles de 0 à 155
+        for i in range(156):
+            # Chargement de l'image et ajout au dictionnaire avec la clé correspondante
+            tile_images[i] = pygame.image.load(f"img/Cutted/{i}.png").convert_alpha()
 
+        # Initialisation de self.tile_images avec le dictionnaire des tuiles chargées
+        self.tile_images = tile_images
+
+        # Boucle pour traiter les données des tuiles
         row_count = 0
         for row in data:
             col_count = 0
@@ -152,6 +116,7 @@ class World:
                     self.tile_list.append(tile_data)
                 col_count += 1
             row_count += 1
+
 
     def draw(self, camera):
         for tile in self.tile_list:
@@ -253,7 +218,7 @@ class Player:
 
 
 
-file_path = 'C:/Users/zcolucci/Documents/GitHub/GTECH1-MINI-STUDIO-Groupe-2/map/2map.txt'
+file_path = 'C:/Users/zian/Documents/GitHub/GTECH1-MINI-STUDIO-Groupe-2/map/2map.txt'
 
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
