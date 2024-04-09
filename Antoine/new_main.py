@@ -8,8 +8,8 @@ clock = pygame.time.Clock()
 # Creation de la fenetre de jeu
 
     # Dimensions de la fenêtre de jeu
-x_screen : int = 1280 
-y_screen : int = 720
+x_screen : int = 1920
+y_screen : int = 1080
 
     # Caractéristiques de la fenêtre de jeu
 pygame.display.set_caption("Python_Game")
@@ -30,6 +30,53 @@ arial_font = pygame.font.SysFont("arial", 10)
 
 # ------ Classes
 
+class Force():
+    def __init__(self):
+        self.is_active = False
+        self.current_speed = 0
+
+    def Start(self, direction, start_speed, end_speed, acceleration):
+        self.StartWithDistance(direction, -1, start_speed, end_speed, acceleration)
+
+    def StartWithDistance(self, direction, distance, start_speed, end_speed, acceleration):
+        self.direction = direction
+        self.distance = distance
+        self.start_speed = start_speed
+        self.end_speed = end_speed
+        self.acceleration = acceleration
+        self.acomplished_distance = 0
+        self.is_active = True
+        self.current_speed = start_speed
+
+        if acceleration < 0:
+            self.minOrMax = max
+        else:
+            self.minOrMax = min
+
+    def Stop(self):
+        self.is_active = False
+
+    def Update(self, dt):
+        if self.IsActive() == False:
+            return 0, 0
+
+        distance = self.current_speed * dt
+        move_x = self.direction[0] * distance
+        move_y = self.direction[1] * distance
+
+        self.current_speed += (self.acceleration * dt)
+        self.current_speed = (self.minOrMax(self.current_speed, self.end_speed))
+
+        if self.distance != -1:
+            self.acomplished_distance += distance
+            if self.acomplished_distance >= self.distance:
+                self.Stop()  
+
+        return move_x, move_y
+
+    def IsActive(self):
+        return self.is_active
+
 class Player():
     
     def __init__(self, x, y) -> None:
@@ -44,30 +91,19 @@ class Player():
         self.rect = self.icon.get_rect() # Variable qui permet l'étude des collisions du joueur
         
         # Forces qui s'appliquent au joueur
-        self.jump_force : int = 1000 # Force de saut
-        #
+        # Quand isOnGrond == False :
         self.air_movement : float = 0 # Capacité de déplcament dans l'air
         #
         self.move_x : int = 0 # Déplacement sur l'axe x
         self.move_y : int = 0 # Déplacement sur l'axe y
         #
-        self.speed : float = 150 # Vitesse p/s
+        self.speed : float = 500 # Vitesse pxl/s
 
-        self.vertical_speed = 0
-        self.vertical_acceleration = 0
-        self.vertical_distance_accomplished = 0
-
-        self.jump_speed_min = 100
-        self.jump_speed_max = 500
-        self.jump_deceleration = 50
-        self.jump_distance = 100
-
-        self.gravity_speed_min = 100
-        self.gravity_speed_max = 500
-        self.gravity_acceleration = 250
+        self.gravity_force = Force()
 
         # Collisions
         self.isOnGround : bool = True # état sur le sol
+        self.isJumping = False
 
     # ------ Fonctions
 
@@ -80,20 +116,30 @@ class Player():
 
 
 
-    def Jump(self, dt : float) : # Le personnage saute
+    def Jump(self) : # Le personnage saute
         print("La fonction Jump est appellée \n")
+
         if self.isOnGround == False : # Si le personnage est en l'air / sur un mur, on sort de la fonction
             print("Je ne peux pas sauter \n")
             return
         
-         # Si le personnage est sur le sol, on le fait sauter
+        # Sinon on le fait sauter
         self.isOnGround = False
+        self.isJumping = True
+        
         print("Je saute \n")
-        # [A FAIRE]  -->  Faire une augmentation progressive de la hauteur / descente progressive
 
-        self.vertical_speed = -self.jump_speed_max
-        self.vertical_acceleration = self.jump_deceleration
-        self.vertical_distance_accomplished = 0
+        self.gravity_force.StartWithDistance((0,-1), 200, 850, 500, -50)
+
+
+
+    def StopJump(self):
+        if self.isJumping == False:
+            return
+        
+        self.isJumping = False
+        self.gravity_force.Start((0,1), 100, 750, 500)
+
 
 
     def Update(self, dt : float) :
@@ -108,21 +154,16 @@ class Player():
             print("Je vais à droite \n")
             self.Move(dt, 1)
 
-        if self.isOnGround == False:
-            self.move_y += self.vertical_speed * dt
-            self.vertical_speed += self.vertical_acceleration * dt
+        gravity_move_x, gravity_move_y  = self.gravity_force.Update(dt)
+        if self.gravity_force.IsActive() == False:
+            self.StopJump()
+        
+        if self.isJumping == False and self.isOnGround == False and (self.pos_y + self.move_y) >= ground.top:
+            self.isOnGround = True
+            self.gravity_force.Stop()
 
-            if self.vertical_speed < 0:
-                self.vertical_speed = min(-self.jump_speed_min, self.vertical_speed)
-                self.vertical_distance_accomplished += abs(self.move_y)
-                if self.vertical_distance_accomplished >= self.jump_distance:
-                    self.vertical_speed = self.gravity_speed_min
-                    self.vertical_acceleration = self.gravity_acceleration
-
-            else:
-                self.vertical_speed = min(self.gravity_speed_max, self.vertical_speed)
-                if (self.pos_y + self.move_y) >= ground.top:
-                    self.isOnGround = True
+        self.move_x += gravity_move_x
+        self.move_y += gravity_move_y
 
         # Actualisation de la position
         self.pos_x += self.move_x 
@@ -162,22 +203,24 @@ def main() :
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE :
                 print("Je saute \n")
-                player.Jump(dt)
+                player.Jump()
 
+            if event.type == pygame.KEYUP and event.key == pygame.K_SPACE :
+                print("Je saute plus\n")
+                player.StopJump()
 
 
 
         # Actualisation de l'affichage
-        text = arial_font.render(f"{clock.get_fps():.2f} FPS", True, (255,255,255))
+        text = arial_font.render(f"{clock.get_fps():.0f} FPS", True, (255,255,255))
         screen.blit(background, (0,0))
         screen.blit(text, (0,0))
-        
         
         player.Update(dt)
         
         pygame.display.flip()
 
-        clock.tick(60) # Tx de rafraîchissement (fps)
+        clock.tick(160) # Tx de rafraîchissement (fps)
         end = pygame.time.get_ticks()
         dt = (end - start) / 1000
 
