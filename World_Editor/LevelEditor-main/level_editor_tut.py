@@ -145,8 +145,8 @@ def draw_tiles_for_current_page():
     button_row = 0
 
     for i in range(start_index, end_index):
-        tile_x = (button_col * (TILE_SIZE + 10)) + SCREEN_WIDTH + 50  # Ajoutez une marge si nécessaire
-        tile_y = (button_row * (TILE_SIZE + 10)) + 50  # Ajoutez une marge si nécessaire
+        tile_x = (button_col * (TILE_SIZE + 10)) + SCREEN_WIDTH + 80  # Ajoutez une marge si nécessaire
+        tile_y = (button_row * (TILE_SIZE + 10)) + 80  # Ajoutez une marge si nécessaire
         tile_image = img_list[i]
         tile_button = button.Button(tile_x, tile_y, tile_image, 1, start_index + (i - start_index) )
         current_tile_buttons.append(tile_button)  # Ajouter le bouton de tuile à la liste
