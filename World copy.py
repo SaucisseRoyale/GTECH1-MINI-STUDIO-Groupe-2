@@ -218,7 +218,7 @@ class Player:
 
 
 
-file_path = 'C:/Users/zian/Documents/GitHub/GTECH1-MINI-STUDIO-Groupe-2/map/2map.txt'
+file_path = 'map/2map.txt'
 
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
