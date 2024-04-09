@@ -8,7 +8,7 @@ pygame.init()
 screen_width = 1000
 screen_height = 700
 tile_size = 50
-move_speed = 10
+move_speed = 5
 scroll_left = False
 scroll_right = False
 scroll = 0
@@ -68,6 +68,7 @@ class World:
         self.tile_list = []
 
         if not data:
+            print("world_data est vide!")
             self.width = 0
             self.height = 0
             return 
@@ -112,125 +113,84 @@ class Player:
         self.height = self.image.get_height()
         self.rect.x = x
         self.rect.y = y
-
-        self.walk_speed = 500 #vitesse de marche
-        self.speed_multiplication = 1
-        self.current_speed_x = 0
-        self.current_speed_y = 0
-        self.dir_x = 0
-        self.dir_y = 0
-
-        self.gravity = 1.2 #force de la gravité
-        self.gravity_coefficient = 1 #acceleration de la gravité
-
+        self.vel_y = 0
         self.on_ground = False
-        self.on_wall = False
-
-        self.dash_power = 40 #puissance du dash
-        self.dash_acceleration = 5 #accélération du dash
-        self.dash_duration = 0.1 #durée du dash
+        self.jump_power = 15
+        self.gravity = 1
+        self.dash_power = 40
         self.dash_speed = 0
+        self.dash_acceleration = 5
+        self.dash_duration = 0.1  # Durée du dash en secondes
         self.dash_timer = 0
-        self.dash_direction = 0
-        self.dash_allow = True
-
-        self.jump_power = 17 #puissance du saut
-        self.maxjump = 2 #nombre de sauts
-        self.nbr_jump = 0
-        self.space_pressed = False
-
-        self.slide_speed = 4.0 #vitesse du slide (quoeficient d'acceleration de la vitesse)
-        self.slide_duration = 0.3 #durée du slide
-        self.is_sliding = False
-        self.slide_timer = 0
-
-        #listes des annimation
-        self.annim_standing = 0
-        self.annim_walk = 0
-        self.annim_turn = 0 #obtionnel
-        self.annim_jump = 0
-        self.annim_run_jump = 0
-        self.annim_falling_still = 0
-        self.annim_falling_foward = 0
-        self.annim_falling_turn = 0 #obtionnel
-        self.annim_falling_landing = 0
-        self.annim_start_dash = 0
-        self.annim_dash = 0
-        self.annim_end_dash = 0
-        self.annim_start_slide = 0
-        self.annim_end_slide = 0
-        self.annim_standing_wall = 0 #obtionnel
-        self.annim_walljump = 0 #obtionnel
-
-    def annimation():
-        if player.current_speed_x != 0 and player.on_ground and not player.is_sliding : #walk
-            pass
-        elif player.space_pressed and player.on_ground and player.current_speed_x == 0 :#saut sur place
-            pass
-        elif player.space_pressed and player.on_ground and player.current_speed_x != 0 : #saut en avant
-            pass
-        elif player.space_pressed and not player.on_ground and player.current_speed_x == 0 : #2eme saut sur place 
-            pass
-        elif player.space_pressed and not player.on_ground and player.current_speed_x != 0 : #2eme saut en avant
-            pass
-        elif player.current_speed_y  > 5 and player.current_speed_x == 0 : #chute sur place
-            pass
-        elif player.current_speed_y  > 5  and player.current_speed_x != 0 : #chute en avant
-            pass
-        elif player.dash_timer != 0 : #dash
-            pass
-        elif player.is_sliding:  
-            pass   
-
-    def set_velocity_x(self, dir_x, speed):
-            self.current_speed_x = dir_x * speed
-
-    def set_velocity_y(self, dir_y, speed):
-            self.current_speed_y = dir_y * speed
+        self.allow_dash = True
+        self.dash_direction = 0  # Ajout de la direction du dash
 
     def update(self):
+        dx = 0
+        dy = 0
 
-        dx = self.current_speed_x * dt
-        dy = self.current_speed_y * dt
-        
-    #gravity
-        self.current_speed_y += self.gravity * self.gravity_coefficient ** dt
-        dy += self.current_speed_y
-    #end of gravity
+        key = pygame.key.get_pressed()
+        if key[K_q]:
+            dx -= move_speed
+        if key[K_d]:
+            dx += move_speed
 
-    # Check collisions
+        # Jump
+        if key[K_SPACE] and self.on_ground:
+            self.vel_y = -self.jump_power
+            self.on_ground = False
+
+        if key[K_LSHIFT] and self.dash_timer <= 0 and self.allow_dash and not self.on_ground:
+            # Détermination de la direction du dash
+            self.dash_direction = 1 if key[K_d] else -1 if key[K_q] else 0
+
+            self.dash_speed += self.dash_acceleration
+            if self.dash_speed >= self.dash_power:
+                self.dash_speed = self.dash_power
+                self.dash_timer = self.dash_duration
+                self.allow_dash = False
+            # Mettre à jour la position du joueur en fonction de la vitesse de dash et de la direction
+            self.rect.x += self.dash_speed * self.dash_direction
+            self.vel_y = 0
+        elif self.dash_timer > 0:
+            self.dash_timer -= dt
+            self.dash_speed = 0
+        elif self.on_ground:
+            self.allow_dash = True
+
+        # Dash
+        # Supprimer cette partie de code liée au dash que vous avez commentée
+
+        # Apply gravity
+        self.vel_y += self.gravity
+        if self.vel_y > 10:
+            self.vel_y = 10
+        dy += self.vel_y
+
+        # Check collisions
         for tile in world.tile_list:
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
-                self.on_wall = True
 
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                if self.current_speed_y < 0:
+                if self.vel_y < 0:
                     dy = tile[1].bottom - self.rect.top
-                    self.current_speed_y = 0
-                elif self.current_speed_y >= 0:
+                    self.vel_y = 0
+                elif self.vel_y >= 0:
                     dy = tile[1].top - self.rect.bottom
-                    self.current_speed_y = 0
+                    self.vel_y = 0
                     self.on_ground = True
-                    self.nbr_jump = 0
-    #end of collision check
 
-    # Update player coordinates
+        # Update player coordinates
         self.rect.x += dx
         self.rect.y += dy
 
-        if self.current_speed_x >= 0:
-            self.current_speed_x = max(0, self.current_speed_x - ( 2000 * dt  * self.speed_multiplication))
-        else:
-            self.current_speed_x = min(0, self.current_speed_x + ( 2000 * dt  * self.speed_multiplication))
-    #end of Update player coordinates
-
-
     def draw(self, camera):
-         screen.blit(self.image, camera.apply(self.rect))
+        screen.blit(self.image, camera.apply(self.rect))
 
 
-file_path = 'map/2map.txt'
+
+file_path = 'C:/Users/zcolucci/Documents/GitHub/GTECH1-MINI-STUDIO-Groupe-2/map/2map.txt'
 
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
@@ -240,68 +200,7 @@ camera = Camera(world.width, world.height)
 
 run = True
 while run:
-    start = pygame.time.get_ticks()
-
-#movement
-    key = pygame.key.get_pressed()
-    if key[K_q] and (not player.is_sliding or abs(player.current_speed_x) <= 20):
-        player.set_velocity_x(-1, player.walk_speed)
-    if key[K_d] and (not player.is_sliding or abs(player.current_speed_x) <= 20):
-        player.set_velocity_x(1, player.walk_speed)
-#end of movement
-
-#jump
-    if key[K_SPACE] and not player.is_sliding:
-        if player.on_ground or player.on_wall:
-            player.set_velocity_y(-1, player.jump_power)
-            player.on_ground = False
-            player.nbr_jump += 1
-        elif not player.space_pressed and player.nbr_jump < player.maxjump and (not player.on_ground or not player.on_wall):
-            player.nbr_jump += 1
-            player.set_velocity_y(-1, player.jump_power)
-        player.space_pressed = True
-    else:
-        player.space_pressed = False
-#end of jump
-
-# Dash
-    if key[K_LCTRL] and player.dash_timer <= 0 and player.dash_allow and not player.on_ground and not player.space_pressed :
-        # Détermination de la direction du dash
-        player.dash_direction = 1 if key[K_d] else -1 if key[K_q] else 0
-
-        player.dash_speed += player.dash_acceleration
-        if player.dash_speed >= player.dash_power:
-            player.dash_speed = player.dash_power
-            player.dash_timer = player.dash_duration
-            player.dash_allow = False
-        player.rect.x += player.dash_speed * player.dash_direction
-        player.current_speed_y = 0
-    elif player.dash_timer > 0:
-        player.dash_timer -= dt
-        player.dash_speed = 0
-    elif player.on_ground:
-        player.dash_allow = True
-#end of dash
-
-#slide
-    if key[K_LSHIFT]:
-        player.speed_multiplication = 0.5
-        if player.on_ground and player.slide_timer <= 0 and not player.is_sliding:
-            player.current_speed_x *=  player.slide_speed
-            player.is_sliding = True
-    else:
-        player.is_sliding = False
-        player.speed_multiplication = 1
- #end of slide       
-
-
-
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
-        
+    start = pygame.time.get_ticks() 
     draw_bg()
 
     camera.update(player)
@@ -309,12 +208,19 @@ while run:
     player.update()
     player.draw(camera)
 
-    pygame.display.update()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
 
     targetTime = 1000 / fps
     if dt < targetTime:
         pygame.time.delay(int(targetTime - dt))
     dt = pygame.time.get_ticks() - start
     dt /= 1000 
+
+
+
+    pygame.display.update()
+    
 
 pygame.quit()
