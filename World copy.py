@@ -30,7 +30,7 @@ pygame.display.set_caption('Platformer')
 
 pine1_img = pygame.image.load('img/pine1.png').convert_alpha()
 pine2_img = pygame.image.load('img/pine2.png').convert_alpha()
-mountain_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/parallax1.png').convert_alpha()
+mountain_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
 sky_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
 
 def draw_bg():
@@ -50,7 +50,6 @@ def draw_bg():
         screen.blit(mountain_img, (mountain_x_pos, screen_height - mountain_img.get_height() - 300 + mountain_y_pos_adjustment))
 
         
-
 
 class Camera:
     def __init__(self, width, height):
@@ -94,7 +93,7 @@ class World:
 
         # Boucle pour charger les tuiles de 0 à 155
         for i in range(156):
-            # Chargement de l'image et ajout au dictionnaire avec la clé correspondante
+            
             tile_images[i] = pygame.image.load(f"img/Cutted/{i}.png").convert_alpha()
 
         # Initialisation de self.tile_images avec le dictionnaire des tuiles chargées
@@ -230,7 +229,6 @@ with open(file_path, 'r') as file:
 world = World(world_data)
 player = Player(100, screen_height - 130)
 camera = Camera(world.width, world.height)
-
 run = True
 while run:
     start = pygame.time.get_ticks() 
@@ -252,8 +250,6 @@ while run:
         pygame.time.delay(int(targetTime - dt))
     dt = pygame.time.get_ticks() - start
     dt /= 1000 
-
-
 
     pygame.display.update()
     
