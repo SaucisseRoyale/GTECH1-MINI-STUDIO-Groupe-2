@@ -92,7 +92,7 @@ class World:
         tile_images = {}
 
         # Boucle pour charger les tuiles de 0 à 155
-        for i in range(156):
+        for i in range(171):
             
             tile_images[i] = pygame.image.load(f"img/Cutted/{i}.png").convert_alpha()
 
