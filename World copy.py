@@ -30,27 +30,26 @@ pygame.display.set_caption('Platformer')
 
 pine1_img = pygame.image.load('img/pine1.png').convert_alpha()
 pine2_img = pygame.image.load('img/pine2.png').convert_alpha()
-mountain_img = pygame.image.load('img/mountain.png').convert_alpha()
-sky_img = pygame.image.load('img/sky_cloud.png').convert_alpha()
+mountain_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/parallax1.png').convert_alpha()
+sky_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
 
 def draw_bg():
-    screen.fill(GREEN)
     width = sky_img.get_width()
     total_width = screen_width + width  
     num_images = total_width // width + 1 
     
     for x in range(num_images):
+        # Ajustez ces valeurs pour changer la position en Y
+        sky_y_pos_adjustment = 0
+        mountain_y_pos_adjustment = 300
         
         sky_x_pos = (x * width) - scroll * 0.5
         mountain_x_pos = (x * width) - scroll * 0.6
-        pine1_x_pos = (x * width) - scroll * 0.7
-        pine2_x_pos = (x * width) - scroll * 0.8
         
+        screen.blit(sky_img, (sky_x_pos, 0 + sky_y_pos_adjustment))
+        screen.blit(mountain_img, (mountain_x_pos, screen_height - mountain_img.get_height() - 300 + mountain_y_pos_adjustment))
+
         
-        screen.blit(sky_img, (sky_x_pos, 0))
-        screen.blit(mountain_img, (mountain_x_pos, screen_height - mountain_img.get_height() - 300))
-        screen.blit(pine1_img, (pine1_x_pos, screen_height - pine1_img.get_height() - 150))
-        screen.blit(pine2_img, (pine2_x_pos, screen_height - pine2_img.get_height()))
 
 
 class Camera:
