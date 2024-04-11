@@ -190,49 +190,36 @@ class Player:
 
 
         # Apply gravity
-        if self.on_ground == False:
-            self.vel_y += self.gravity
+        self.vel_y += self.gravity
 
         if self.vel_y > 10:
             self.vel_y = 10
         dy += self.vel_y
 
         # Check collisions
+        for tile in world.tile_list:
+                    if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                        dx = 0
+                    if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                        if tile[2] == 21:  
+                            self.vel_y = -self.jump_power * 1.5
+                            self.on_ground = False
+                            break 
+
+                        # Gestion des autres collisions
+                        if self.vel_y < 0:
+                            dy = tile[1].bottom - self.rect.top
+                        elif self.vel_y >= 0:
+                            dy = tile[1].top - self.rect.bottom
+                
+                            self.on_ground = True
+
+
+        # Update player coordinates
         self.rect.x += dx
         self.rect.y += dy
-
-        # Nouvelle gestion des collisions avec les tuiles en utilisant les masques
-        for tile in world.tile_list:
-            # Obtention de la position relative du joueur par rapport à la tuile pour la vérification des masques
-            offset_x = tile[1].x - self.rect.x
-            offset_y = tile[1].y - self.rect.y
             
-
-            # Vérification de la collision entre le masque du joueur et celui de la tuile
-
-            face, distance = self.get_collision(self.rect, tile[1])
-            collision_point = self.mask.overlap(tile[3], (offset_x, offset_y))
-
-            if face == FaceCollision.TOP:
-                print("0")
-                #self.col_p[0] = collision_point[0]
-                #self.col_p[1] = collision_point[1]
-                self.rect.y = tile[1].y - self.height / 2
-                dy = 0
-                self.on_ground = True
-                self.vel_y = 0
-            elif face == FaceCollision.BOTTOM:
-                print("1")
-            elif face == FaceCollision.LEFT:
-                print("2")
-            elif face == FaceCollision.RIGHT:
-                print("3")
-            else:
-                pass
-                
-
-            
-            '''
+        '''
             if face != FaceCollision.NONE:
                 print(str(face))
                 self.col_p[0] = collision_point[0]
@@ -253,7 +240,7 @@ class Player:
                 elif dx < 0:
                     self.rect.x = tile[1].right
                     dx = 0
-            '''
+        '''
     def get_collision(self, r1: pygame.rect.Rect, r2: pygame.rect.Rect) -> tuple[FaceCollision, int]:
         if r1.right < r2.left:
             return FaceCollision.NONE, 0
