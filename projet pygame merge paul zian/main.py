@@ -21,17 +21,17 @@ fps = 60
 dt = 0
 
 
-res = "img/mouvement/hidl/animation stand1.png"
-animations_walk = ["img/mouvement/run/course1.png", "img/mouvement/run/course2.png", "img/mouvement/run/course3.png"]
-animations_standing = ["img/mouvement/hidl/animation stand1.png", "img/mouvement/hidl/animation stand2.png", "img/mouvement/hidl/animation stand3.png", "img/mouvement/hidl/animation stand4.png", "img/mouvement/hidl/animation stand5.png"]
-animations_air_jump = ["img/mouvement/double jump/double jump1.png", "img/mouvement/double jump/double jump2.png", "img/mouvement/double jump/double jump3.png", "img/mouvement/double jump/double jump4.png"]
-animations_jump = ["img/mouvement/run jump/run_jump1.png", "img/mouvement/run jump/run_jump2.png", "img/mouvement/run jump/run_jump3.png", "img/mouvement/run jump/run_jump4.png"]
-animations_monte = ["img/mouvement/run jump/run_jump5.png", "img/mouvement/run jump/run_jump6.png"]
-animations_falling = ["img/mouvement/run jump/run_jump7.png", "img/mouvement/run jump/run_jump8.png"]
-animations_landing = ["img/mouvement/run jump/run_jump9.png", "img/mouvement/run jump/run_jump10.png"]
-animations_dash = ["img/mouvement/dash/dash1.png", "img/mouvement/dash/dash2.png",]
-animations_start_slide = ["img/mouvement/slide/slide1.png"]
-animations_slide = ["img/mouvement/slide/slide2.png", "img/mouvement/slide/slide3.png"]
+res = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
+animations_walk = ["projet pygame merge paul zian/img/mouvement/run/course1.png", "projet pygame merge paul zian/img/mouvement/run/course2.png", "projet pygame merge paul zian/img/mouvement/run/course3.png"]
+animations_standing = ["projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand2.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand3.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand4.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand5.png"]
+animations_air_jump = ["projet pygame merge paul zian/img/mouvement/double jump/double jump1.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump2.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump3.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump4.png"]
+animations_jump = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump1.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump2.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump3.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump4.png"]
+animations_monte = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump5.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump6.png"]
+animations_falling = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump7.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump8.png"]
+animations_landing = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump9.png", "iprojet pygame merge paul zian/mg/mouvement/run jump/run_jump10.png"]
+animations_dash = ["projet pygame merge paul zian/img/mouvement/dash/dash1.png", "projet pygame merge paul zian/img/mouvement/dash/dash2.png",]
+animations_start_slide = ["projet pygame merge paul zian/img/mouvement/slide/slide1.png"]
+animations_slide = ["projet pygame merge paul zian/img/mouvement/slide/slide2.png", "projet pygame merge paul zian/img/mouvement/slide/slide3.png"]
 #define colours
 
 GREEN = (144, 201, 120)
@@ -41,8 +41,8 @@ RED = (200, 25, 25)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
-mountain_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
-sky_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
+mountain_img = pygame.image.load('projet pygame merge paul zian/World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
+sky_img = pygame.image.load('projet pygame merge paul zian/World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
 
 from enum import Enum
 class FaceCollision(Enum):
@@ -113,7 +113,7 @@ class World:
         # Boucle pour charger les tuiles de 0 à 155
         for i in range(171):
             
-            tile_images[i] = pygame.image.load(f"img/Cutted/{i}.png").convert_alpha()
+            tile_images[i] = pygame.image.load(f"projet pygame merge paul zian/img/Cutted/{i}.png").convert_alpha()
 
         # Initialisation de self.tile_images avec le dictionnaire des tuiles chargées
         self.tile_images = tile_images
@@ -142,7 +142,7 @@ class World:
 
 class Player:
     def __init__(self, x, y):
-        link_img = "img/mouvement/hidl/animation stand1.png"
+        link_img = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
         self.img = pygame.image.load(link_img).convert_alpha()
         self.image = pygame.transform.scale(self.img, (56, 56))
         self.rect = self.image.get_rect()
@@ -389,12 +389,12 @@ class Player:
 
 
 
-file_path = 'map/2map.txt'
+file_path = 'projet pygame merge paul zian/map/2map.txt'
 
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
 world = World(world_data)
-player = Player(100, screen_height - 400)
+player = Player(500, screen_height - 200)
 camera = Camera(world.width, world.height)
 run = True
 while run:
