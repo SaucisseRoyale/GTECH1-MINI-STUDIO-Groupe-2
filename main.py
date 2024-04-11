@@ -20,17 +20,20 @@ clock = pygame.time.Clock()
 fps = 60
 dt = 0
 
-#tableau des annimations
-
-        # self.annim_standing = 0
-        # self.annim_walk = 0
-        # self.annim_jump = 0
-        # self.annim_falling = 0
-        # self.annim_falling_landing = 0
-        # self.annim_dash = 0
-        # self.annim_start_slide = 0
-        # self.annim_slide = 0
+res = "img/mouvement/hidl/animation stand1.png"
+animations_walk = ["img/mouvement/run/course1.png", "img/mouvement/run/course2.png", "img/mouvement/run/course3.png"]
 animations_standing = ["img/mouvement/hidl/animation stand1.png", "img/mouvement/hidl/animation stand2.png", "img/mouvement/hidl/animation stand3.png", "img/mouvement/hidl/animation stand4.png", "img/mouvement/hidl/animation stand5.png"]
+animations_air_jump = ["img/mouvement/double jump/double jump1.png", "img/mouvement/double jump/double jump2.png", "img/mouvement/double jump/double jump3.png", "img/mouvement/double jump/double jump4.png"]
+animations_jump = ["img/mouvement/run jump/run_jump1.png", "img/mouvement/run jump/run_jump2.png", "img/mouvement/run jump/run_jump3.png", "img/mouvement/run jump/run_jump4.png"]
+animations_monte = ["img/mouvement/run jump/run_jump5.png", "img/mouvement/run jump/run_jump6.png"]
+animations_falling = ["img/mouvement/run jump/run_jump7.png", "img/mouvement/run jump/run_jump8.png"]
+animations_landing = ["img/mouvement/run jump/run_jump9.png", "img/mouvement/run jump/run_jump10.png"]
+animations_dash = ["img/mouvement/dash/dash1.png", "img/mouvement/dash/dash2.png",]
+animations_start_slide = ["img/mouvement/slide/slide1.png"]
+animations_slide = ["img/mouvement/slide/slide2.png", "img/mouvement/slide/slide3.png"]
+# annimation_degats = ["img/mouvement/degat/"]
+
+
 
 #define colours
 GREEN = (144, 201, 120)
@@ -161,35 +164,105 @@ class Player:
         self.annim_standing = 0
         self.annim_walk = 0
         self.annim_jump = 0
+        self.annim_air_jump = 0
+        self.annim_monte = 0
         self.annim_falling = 0
         self.annim_falling_landing = 0
         self.annim_dash = 0
         self.annim_start_slide = 0
         self.annim_slide = 0
+        
+        self.annim_timer = 0
+        self.annim_timer_frame = 0.1
+        self.nbr_frame = 0
+        self.player_oritentation = 1
+        self.x_size = 56
 
     def annimation(self):
-        if player.current_speed_x != 0 and player.on_ground and not player.is_sliding : #walk   
-            pass
-        elif player.space_pressed and player.on_ground: #saut sur place
-            pass
-        elif player.space_pressed and not player.on_ground: #2eme saut sur place 
-            pass
-        elif player.current_speed_y  > 5 and player.current_speed_x == 0 : #chute sur place
-            pass
-        elif player.current_speed_y  > 5  and player.current_speed_x != 0 : #chute en avant
-            pass
-        elif player.dash_timer >= 0 : #dash
-            pass
-        elif player.is_sliding:  
-            pass
-        else:
-            res = animations_standing[self.annim_standing]
-            self.annim_standing = (self.annim_standing + 1) % (len(animations_standing) - 1)
-        self.refresh_img(res)
+        walk = False
+        jump = False
+        air_jump = False
+        falling = False
+        dash = False
+        slide = False
+        monte = False
+        nbr_frame_slide = 2
+        nbr_frame_saut = 4
+
+        liste_var = [walk, jump, air_jump, monte, falling, dash, slide]
+        liste_annim = [self.annim_walk, self.annim_jump, self.annim_air_jump, self.annim_monte, self.annim_falling, self.annim_dash, self.annim_slide]
+        self.annim_timer -= dt
+        if self.annim_timer <= 0:
+            self.annim_timer = self.annim_timer_frame
+
+            if self.dash_timer > 0 : #dash
+                dash = True
+                res = animations_dash[self.annim_dash]
+                self.annim_dash = (self.annim_dash + 1) % (len(animations_dash))
+                self.x_size = 56
+            
+            elif self.is_sliding:
+                slide = True
+                if self.nbr_frame <= nbr_frame_slide:
+                    res = animations_start_slide[self.annim_start_slide]
+                    self.annim_start_slide = (self.annim_start_slide + 1) % (len(animations_start_slide))
+                    self.nbr_frame += 1
+                    self.x_size = 60
+                else:
+                    res = animations_slide[self.annim_slide]
+                    self.annim_slide = (self.annim_slide + 1) % (len(animations_slide))
+                    self.x_size = 60
+
+            elif self.space_pressed and self.on_ground and self.nbr_frame <= nbr_frame_saut: #saut
+                jump = True
+                res = animations_jump[self.annim_jump]
+                self.annim_jump = (self.annim_jump + 1) % (len(animations_jump))
+                self.nbr_frame += 1
+                self.x_size = 56
+            
+            elif self.space_pressed and not self.on_ground and self.nbr_frame <= nbr_frame_saut: #2eme saut 
+                air_jump = True
+                res = animations_air_jump[self.annim_air_jump]
+                self.annim_air_jump = (self.annim_air_jump + 1) % (len(animations_air_jump))
+                self.nbr_frame += 1
+                self.x_size = 56
+
+            elif self.current_speed_y < 0 and not self.on_ground: #monté
+                monte = True
+                res = animations_monte[self.annim_monte]
+                self.annim_monte = (self.annim_monte + 1) % (len(animations_monte))
+                self.x_size = 56
+
+            elif self.current_speed_y  > 5 : #chute
+                res = animations_falling[self.annim_falling]
+                self.annim_standing = (self.annim_standing + 1) % (len(animations_falling))
+                falling = True
+                self.x_size = 56
+            
+            elif (key[K_d] or key[K_q]) and self.on_ground: #walk 
+                res = animations_walk[self.annim_walk]
+                self.annim_walk = (self.annim_walk + 1) % (len(animations_walk))
+                walk = True
+                self.x_size = 90
+            
+            else:
+                res = animations_standing[self.annim_standing]
+                self.annim_standing = (self.annim_standing + 1) % (len(animations_standing))
+                self.x_size = 56
+
+
+            for i in liste_var:
+                if not liste_var[i]:
+                    liste_annim[i] = 0
+
+            if not slide and not jump and not air_jump:
+                self.nbr_frame = 0
+                    
+            self.refresh_img(res)
     
     def refresh_img(self, link):
         self.img = pygame.image.load(link).convert_alpha()
-        self.image = pygame.transform.scale(self.img, (56, 56))
+        self.image = pygame.transform.scale(self.img, (self.x_size, 56))
 
     def set_velocity_x(self, dir_x, speed):
         self.current_speed_x = dir_x * speed
@@ -212,9 +285,6 @@ class Player:
         for tile in world.tile_list:
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
-                self.on_wall = True
-            else:
-                self.on_wall = False
 
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 if self.current_speed_y < 0:
@@ -232,14 +302,22 @@ class Player:
         self.rect.y += dy
 
         if self.current_speed_x >= 0:
+            self.player_oritentation = 1
             self.current_speed_x = max(0, self.current_speed_x - ( 2000 * dt  * self.speed_multiplication))
         else:
             self.current_speed_x = min(0, self.current_speed_x + ( 2000 * dt  * self.speed_multiplication))
+            self.player_oritentation = -1
     #end of Update player coordinates
 
-
     def draw(self, camera):
-         screen.blit(self.image, camera.apply(self.rect))
+        # Si player_orientation est 1, pas besoin de retourner l'image
+        if self.player_oritentation == 1:
+            screen.blit(self.image, camera.apply(self.rect))
+        # Si player_orientation est -1, retourner l'image horizontalement
+        elif self.player_oritentation == -1:
+            flipped_image = pygame.transform.flip(self.image, True, False)
+            screen.blit(flipped_image, camera.apply(self.rect))
+
 
 
 file_path = 'map/2map.txt'
