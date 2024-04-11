@@ -33,6 +33,14 @@ pine2_img = pygame.image.load('img/pine2.png').convert_alpha()
 mountain_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
 sky_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
 
+from enum import Enum
+class FaceCollision(Enum):
+    NONE = 0
+    LEFT = 1
+    RIGHT = 2
+    TOP = 3
+    BOTTOM = 4
+
 def draw_bg():
     width = sky_img.get_width()
     total_width = screen_width + width  
@@ -110,7 +118,8 @@ class World:
                     img_rect.x = col_count * tile_size
                     img_rect.y = row_count * tile_size
                     mask = pygame.mask.from_surface(img) 
-                    tile_data = (img, img_rect, tile, mask)  
+                    mask_image = mask.to_surface()
+                    tile_data = (img, img_rect, tile, mask, mask_image)  
                     self.tile_list.append(tile_data)
                 col_count += 1
             row_count += 1
@@ -141,6 +150,8 @@ class Player:
         self.dash_timer = 0
         self.allow_dash = True
         self.dash_direction = 0  # Ajout de la direction du dash
+        self.col_p = [0,0]
+        self.mask_image = None
 
     def update(self):
         dx = 0
@@ -179,7 +190,9 @@ class Player:
 
 
         # Apply gravity
-        self.vel_y += self.gravity
+        if self.on_ground == False:
+            self.vel_y += self.gravity
+
         if self.vel_y > 10:
             self.vel_y = 10
         dy += self.vel_y
@@ -194,12 +207,38 @@ class Player:
             offset_x = tile[1].x - self.rect.x
             offset_y = tile[1].y - self.rect.y
             
+
             # Vérification de la collision entre le masque du joueur et celui de la tuile
+
+            face, distance = self.get_collision(self.rect, tile[1])
             collision_point = self.mask.overlap(tile[3], (offset_x, offset_y))
+
+            if face == FaceCollision.TOP:
+                print("0")
+                #self.col_p[0] = collision_point[0]
+                #self.col_p[1] = collision_point[1]
+                self.rect.y = tile[1].y - self.height / 2
+                dy = 0
+                self.on_ground = True
+                self.vel_y = 0
+            elif face == FaceCollision.BOTTOM:
+                print("1")
+            elif face == FaceCollision.LEFT:
+                print("2")
+            elif face == FaceCollision.RIGHT:
+                print("3")
+            else:
+                pass
+                
+
             
-            if collision_point:
+            '''
+            if face != FaceCollision.NONE:
+                print(str(face))
+                self.col_p[0] = collision_point[0]
+                self.col_p[1] = collision_point[1]
                 # Collision détectée, gérer en fonction de la position et du type de collision
-                if dy > 0:  
+                if dy > 0:
                     self.rect.y = tile[1].y - self.height
                     dy = 0
                     self.on_ground = True
@@ -214,11 +253,42 @@ class Player:
                 elif dx < 0:
                     self.rect.x = tile[1].right
                     dx = 0
+            '''
+    def get_collision(self, r1: pygame.rect.Rect, r2: pygame.rect.Rect) -> tuple[FaceCollision, int]:
+        if r1.right < r2.left:
+            return FaceCollision.NONE, 0
+        
+        if r1.left > r2.right:
+            return FaceCollision.NONE, 0
+        
+        if r1.bottom < r2.top:
+            return FaceCollision.NONE, 0
+        
+        if r1.top > r2.bottom:
+            return FaceCollision.NONE, 0
 
+        distances: list[int] = []
+        distances.append( abs(r1.right - r2.left) )
+        distances.append( abs(r1.left - r2.right) )
+        distances.append( abs(r1.bottom - r2.top) )
+        distances.append( abs(r1.top - r2.bottom) )
 
+        face = FaceCollision.NONE
+        min_distance = 9999
+        faces = [FaceCollision.LEFT, FaceCollision.RIGHT, FaceCollision.TOP, FaceCollision.BOTTOM]
+        for i in range(0, 4):
+            if min_distance > distances[i]:
+                face = faces[i]
+                min_distance = distances[i]
+        
+        return face, min_distance
 
     def draw(self, camera):
         screen.blit(self.image, camera.apply(self.rect))
+        if self.mask_image != None:
+            screen.blit(self.mask_image, (0,0))
+        pygame.draw.rect(screen, (255,0,0), (self.col_p[0],self.col_p[1],1,1))
+        #screen.set_at((self.col_p[0], self.col_p[1]), (255,0,0))
 
 
 
@@ -227,7 +297,7 @@ file_path = 'map/2map.txt'
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
 world = World(world_data)
-player = Player(100, screen_height - 130)
+player = Player(100, screen_height - 400)
 camera = Camera(world.width, world.height)
 run = True
 while run:
