@@ -20,7 +20,10 @@ clock = pygame.time.Clock()
 fps = 60
 dt = 0
 
+blob_group = pygame.sprite.Group()
 
+
+font = pygame.font.SysFont('Arial', 30)
 res = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
 animations_walk = ["projet pygame merge paul zian/img/mouvement/run/course1.png", "projet pygame merge paul zian/img/mouvement/run/course2.png", "projet pygame merge paul zian/img/mouvement/run/course3.png"]
 animations_standing = ["projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand2.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand3.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand4.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand5.png"]
@@ -68,7 +71,11 @@ def draw_bg():
         screen.blit(sky_img, (sky_x_pos, 0 + sky_y_pos_adjustment))
         screen.blit(mountain_img, (mountain_x_pos, screen_height - mountain_img.get_height() - 300 + mountain_y_pos_adjustment))
 
-        
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, 1, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)       
 
 class Camera:
     def __init__(self, width, height):
@@ -111,7 +118,7 @@ class World:
         tile_images = {}
 
         # Boucle pour charger les tuiles de 0 à 155
-        for i in range(171):
+        for i in range(172):
             
             tile_images[i] = pygame.image.load(f"projet pygame merge paul zian/img/Cutted/{i}.png").convert_alpha()
 
@@ -132,6 +139,9 @@ class World:
                     mask_image = mask.to_surface()
                     tile_data = (img, img_rect, tile, mask, mask_image)  
                     self.tile_list.append(tile_data)
+                    if tile == 171:
+                        blob = Enemy(col_count * tile_size, row_count * tile_size + 15)
+                        blob_group.add(blob)
                 col_count += 1
             row_count += 1
 
@@ -155,14 +165,14 @@ class Player:
         self.mask_image = None
         self.col_p = [0,0]
         
-        self.walk_speed = 500 #vitesse de marche
+        self.walk_speed = 300 #vitesse de marche
         self.speed_multiplication = 1
         self.current_speed_x = 0
-        self.current_speed_y = 0
+        self.current_speed_y = 0          
         self.dir_x = 0
         self.dir_y = 0
-
-        self.gravity = 1.1 #force de la gravité
+         
+        self.gravity = 0.4 #force de la gravité
         self.gravity_coefficient = 0.7 #acceleration de la gravité
 
         self.on_ground = False
@@ -176,7 +186,7 @@ class Player:
         self.dash_direction = 0
         self.dash_allow = True
 
-        self.jump_power = 17 #puissance du saut
+        self.jump_power = 10 #puissance du saut
         self.maxjump = 2 #nombre de sauts
         self.nbr_jump = 0
         self.space_pressed = False
@@ -309,7 +319,7 @@ class Player:
         dy += self.current_speed_y
 
     # Apply gravity
-        self.current_speed_y += self.gravity
+        self.current_speed_y += self.gravity    
 
         if self.current_speed_y > 10:
             self.current_speed_y = 10
@@ -393,6 +403,23 @@ class Player:
         pygame.draw.rect(screen, (255,0,0), (self.col_p[0],self.col_p[1],1,1))
         #screen.set_at((self.col_p[0], self.col_p[1]), (255,0,0))
 
+class Enemy(pygame.sprite.Sprite):
+	def __init__(self, x, y):
+		pygame.sprite.Sprite.__init__(self)
+		self.image = pygame.image.load('projet pygame merge paul zian/img/Cutted/171.png')
+		self.rect = self.image.get_rect()
+		self.rect.x = x
+		self.rect.y = y
+		self.move_direction = 1
+		self.move_counter = 0
+
+	def update(self):
+		self.rect.x += self.move_direction
+		self.move_counter += 1
+		if abs(self.move_counter) > 50:
+			self.move_direction *= -1
+			self.move_counter *= -1
+   
 
 
 file_path = 'projet pygame merge paul zian/map/2map.txt'
@@ -402,6 +429,8 @@ with open(file_path, 'r') as file:
 world = World(world_data)
 player = Player(500, screen_height - 200)
 camera = Camera(world.width, world.height)
+blob_group = pygame.sprite.Group()
+
 run = True
 while run:
     start = pygame.time.get_ticks() 
@@ -468,8 +497,11 @@ while run:
 
     camera.update(player)
     world.draw(camera)
+    blob_group.update()
+    blob_group.draw(screen)
     player.update()
     player.draw(camera)
+    
     
 
     for event in pygame.event.get():
@@ -481,7 +513,8 @@ while run:
         pygame.time.delay(int(targetTime - dt))
     dt = pygame.time.get_ticks() - start
     dt /= 1000 
-
+    current_fps = 1000/dt
+    draw_text(f'FPS: {current_fps:.2f}', font, pygame.Color('white'), screen, 10, 10)
     pygame.display.update()
     
 
