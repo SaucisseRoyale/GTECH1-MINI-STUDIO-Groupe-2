@@ -284,7 +284,7 @@ file_path = 'map/2map.txt'
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
 world = World(world_data)
-player = Player(100, screen_height - 400)
+player = Player(500, screen_height - 200)
 camera = Camera(world.width, world.height)
 run = True
 while run:
