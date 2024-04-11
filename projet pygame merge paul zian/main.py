@@ -298,6 +298,7 @@ class Player:
 
 
     def update(self):
+        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
         dx = self.current_speed_x * dt
         dy = self.current_speed_y * dt
@@ -347,7 +348,7 @@ class Player:
             self.player_oritentation = -1
     #end of Update player coordinates
             
-    def get_collision(self, r1: pygame.rect.Rect, r2: pygame.rect.Rect) -> tuple[FaceCollision, int]:
+    """def get_collision(self, r1: pygame.rect.Rect, r2: pygame.rect.Rect) -> tuple[FaceCollision, int]:
         if r1.right < r2.left:
             return FaceCollision.NONE, 0
         
@@ -374,7 +375,7 @@ class Player:
                 face = faces[i]
                 min_distance = distances[i]
         
-        return face, min_distance
+        return face, min_distance"""
 
     def draw(self, camera):
         if self.player_oritentation == 1:
@@ -464,6 +465,7 @@ while run:
     world.draw(camera)
     player.update()
     player.draw(camera)
+    
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
