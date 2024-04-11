@@ -144,7 +144,7 @@ class Player:
     def __init__(self, x, y):
         link_img = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
         self.img = pygame.image.load(link_img).convert_alpha()
-        self.image = pygame.transform.scale(self.img, (56, 56))
+        self.image = pygame.transform.scale(self.img, (40, 40))
         self.rect = self.image.get_rect()
         self.width = self.image.get_width()
         self.height = self.image.get_height()
@@ -285,6 +285,8 @@ class Player:
                 self.nbr_frame = 0
                     
             self.refresh_img(res)
+            
+
     
     def refresh_img(self, link):
         self.img = pygame.image.load(link).convert_alpha()
@@ -298,7 +300,7 @@ class Player:
 
 
     def update(self):
-        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+        
 
         dx = self.current_speed_x * dt
         dy = self.current_speed_y * dt
@@ -322,6 +324,10 @@ class Player:
                 if tile[2] == 21:  
                     player.set_velocity_y(-1, player.jump_power)
                     self.on_ground = False
+                    break 
+                if tile[2] == 0:  
+                    print("Death")
+                    pygame.quit()
                     break 
 
             # Gestion des autres collisions
@@ -347,7 +353,6 @@ class Player:
             self.current_speed_x = min(0, self.current_speed_x + ( 2000 * dt  * self.speed_multiplication))
             self.player_oritentation = -1
     #end of Update player coordinates
-            
     """def get_collision(self, r1: pygame.rect.Rect, r2: pygame.rect.Rect) -> tuple[FaceCollision, int]:
         if r1.right < r2.left:
             return FaceCollision.NONE, 0
