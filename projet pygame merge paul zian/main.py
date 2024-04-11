@@ -1,7 +1,6 @@
 import pygame
-import time
 from pygame.locals import *
-import pickle
+import sys
 
 pygame.init()
 
@@ -24,28 +23,171 @@ blob_group = pygame.sprite.Group()
 
 
 font = pygame.font.SysFont('Arial', 30)
-res = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
-animations_walk = ["projet pygame merge paul zian/img/mouvement/run/course1.png", "projet pygame merge paul zian/img/mouvement/run/course2.png", "projet pygame merge paul zian/img/mouvement/run/course3.png"]
-animations_standing = ["projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand2.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand3.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand4.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand5.png"]
-animations_air_jump = ["projet pygame merge paul zian/img/mouvement/double jump/double jump1.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump2.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump3.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump4.png"]
-animations_jump = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump1.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump2.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump3.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump4.png"]
-animations_monte = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump5.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump6.png"]
-animations_falling = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump7.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump8.png"]
-animations_landing = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump9.png", "iprojet pygame merge paul zian/mg/mouvement/run jump/run_jump10.png"]
-animations_dash = ["projet pygame merge paul zian/img/mouvement/dash/dash1.png", "projet pygame merge paul zian/img/mouvement/dash/dash2.png",]
-animations_start_slide = ["projet pygame merge paul zian/img/mouvement/slide/slide1.png"]
-animations_slide = ["projet pygame merge paul zian/img/mouvement/slide/slide2.png", "projet pygame merge paul zian/img/mouvement/slide/slide3.png"]
+res = "img/mouvement/hidl/animation stand1.png"
+animations_walk = ["img/mouvement/run/course1.png", "img/mouvement/run/course2.png", "img/mouvement/run/course3.png"]
+animations_standing = ["img/mouvement/hidl/animation stand1.png", "img/mouvement/hidl/animation stand2.png", "img/mouvement/hidl/animation stand3.png", "img/mouvement/hidl/animation stand4.png", "img/mouvement/hidl/animation stand5.png"]
+animations_air_jump = ["img/mouvement/double jump/double jump1.png", "img/mouvement/double jump/double jump2.png", "img/mouvement/double jump/double jump3.png", "img/mouvement/double jump/double jump4.png"]
+animations_jump = ["img/mouvement/run jump/run_jump1.png", "img/mouvement/run jump/run_jump2.png", "img/mouvement/run jump/run_jump3.png", "img/mouvement/run jump/run_jump4.png"]
+animations_monte = ["img/mouvement/run jump/run_jump5.png", "img/mouvement/run jump/run_jump6.png"]
+animations_falling = ["img/mouvement/run jump/run_jump7.png", "img/mouvement/run jump/run_jump8.png"]
+animations_landing = ["img/mouvement/run jump/run_jump9.png", "img/mouvement/run jump/run_jump10.png"]
+animations_dash = ["img/mouvement/dash/dash1.png", "img/mouvement/dash/dash2.png",]
+animations_start_slide = ["img/mouvement/slide/slide1.png"]
+animations_slide = ["img/mouvement/slide/slide2.png", "img/mouvement/slide/slide3.png"]
 #define colours
 
+# Couleurs
 GREEN = (144, 201, 120)
 WHITE = (255, 255, 255)
 RED = (200, 25, 25)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Police de texte
+font = pygame.font.Font(None, 36)
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
-mountain_img = pygame.image.load('projet pygame merge paul zian/World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
-sky_img = pygame.image.load('projet pygame merge paul zian/World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
+music = pygame.mixer.Sound("assets/son/music.mp3")
+music.set_volume(0.55) 
+
+# ------ MENU
+
+# Fonction pour afficher le texte
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, 1, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)
+
+
+# Fonction pour le menu principal
+def main_menu():
+    background_img = pygame.image.load('assets/menu/background2.png')
+    title_img = pygame.image.load('assets/menu/titre_du_jeu.png')
+
+    # Redimensionne l'image de fond pour couvrir toute la fenêtre
+    background_img = pygame.transform.scale(background_img, (screen_width, screen_height))
+
+    # Redimensionne l'image du titre proportionnellement à la taille de l'écran
+    title_img = pygame.transform.scale(title_img, (int(screen_width * 0.8), int(screen_height * 0.2)))
+
+    title_rect = title_img.get_rect(center=(screen_width/2, screen_height * 0.3))  # Ajuste la position verticale du titre
+
+    while True:
+        screen.blit(background_img, (0, 0))  # Affiche l'image de fond
+        screen.blit(title_img, title_rect)   # Affiche l'image du titre
+
+        # Ajuste les coordonnées du texte pour le centrer
+        text_width, text_height = font.size('Appuyez sur ESPACE pour continuer')
+        text_x = (screen_width - text_width) // 2
+        text_y = screen_height * 0.5
+        draw_text('Appuyez sur ESPACE pour continuer', font, BLACK, screen, text_x, text_y)
+
+        pygame.display.update()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return  # Quitte la fonction main_menu() et lance le jeu
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+# Fonction pour le menu d'options
+def options_menu():
+    # Charge une image pour le fond du menu d'options
+    options_background_img = pygame.image.load('assets/menu/background2.png')
+    options_background_img = pygame.transform.scale(options_background_img, (screen_width, screen_height))
+
+    # Position de la barre de volume
+    volume_bar_rect = pygame.Rect(100, 300, screen_width - 200, 20)
+    volume_bar_color = (100, 100, 100)
+
+    # Volume de la musique (valeur entre 0 et 1)
+    music_volume = 0.5
+
+    while True:
+        screen.fill(WHITE)
+        screen.blit(options_background_img, (0, 0))  # Affiche l'image de fond du menu d'options
+
+        # Dessine la barre de volume
+        pygame.draw.rect(screen, volume_bar_color, volume_bar_rect)
+        volume_bar_fill = pygame.Rect(volume_bar_rect.left, volume_bar_rect.top, int(volume_bar_rect.width * music_volume), volume_bar_rect.height)
+        pygame.draw.rect(screen, (0, 255, 0), volume_bar_fill)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Bouton gauche de la souris
+                    mouse_x, mouse_y = event.pos
+                    if volume_bar_rect.collidepoint(mouse_x, mouse_y):
+                        # Change le volume de la musique en fonction de la position de la souris sur la barre
+                        volume = (mouse_x - volume_bar_rect.left) / volume_bar_rect.width
+                        music_volume = max(0, min(1, volume))  # Assure que le volume reste entre 0 et 1
+
+        pygame.display.update()
+
+# Fonction pour le menu pause
+def pause_menu():
+    # Chargement des images des boutons
+    resume_button_img = pygame.image.load('assets/menu/Resume.png')
+    exit_button_img = pygame.image.load('assets/menu/exit.png')
+    options_button_img = pygame.image.load('assets/menu/options.png')  # Bouton pour ouvrir le menu d'options
+
+    # Redimensionnement des images des boutons proportionnellement à la taille de l'écran
+    button_width = int(screen_width * 0.25)
+    button_height = int(screen_height * 0.1)
+
+    resume_button_img = pygame.transform.scale(resume_button_img, (button_width, button_height))
+    options_button_img = pygame.transform.scale(options_button_img, (button_width, button_height))
+    exit_button_img = pygame.transform.scale(exit_button_img, (button_width, button_height))
+
+    # Positionnement des boutons
+    button_padding = 20  # Espacement entre les boutons
+    total_button_height = button_height * 3 + button_padding * 2  # Hauteur totale des boutons et de l'espacement
+    first_button_y = (screen_height - total_button_height) // 2  # Position y du premier bouton
+
+    resume_button_rect = resume_button_img.get_rect(center=(screen_width/2, first_button_y))
+    options_button_rect = options_button_img.get_rect(center=(screen_width/2, first_button_y + button_height + button_padding))
+    exit_button_rect = exit_button_img.get_rect(center=(screen_width/2, first_button_y + (button_height + button_padding) * 2))
+
+
+    while True:
+        screen.fill(WHITE)
+        screen.blit(resume_button_img, resume_button_rect)
+        screen.blit(options_button_img, options_button_rect)
+        screen.blit(exit_button_img, exit_button_rect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if resume_button_rect.collidepoint(mouse_pos):
+                    return  # Quitte la fonction pause_menu() et reprend le jeu
+                elif options_button_rect.collidepoint(mouse_pos):
+                    options_menu()  # Affiche le menu d'options lorsque le bouton "Options" est cliqué
+                elif exit_button_rect.collidepoint(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
+
+
+clock = pygame.time.Clock()
+fps = 60
+dt = 0
+
+background_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
+sky_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
 
 from enum import Enum
 class FaceCollision(Enum):
@@ -69,13 +211,7 @@ def draw_bg():
         mountain_x_pos = (x * width) - scroll * 0.6
         
         screen.blit(sky_img, (sky_x_pos, 0 + sky_y_pos_adjustment))
-        screen.blit(mountain_img, (mountain_x_pos, screen_height - mountain_img.get_height() - 300 + mountain_y_pos_adjustment))
-
-def draw_text(text, font, color, surface, x, y):
-    textobj = font.render(text, 1, color)
-    textrect = textobj.get_rect()
-    textrect.topleft = (x, y)
-    surface.blit(textobj, textrect)       
+        screen.blit(background_img, (mountain_x_pos, screen_height - background_img.get_height() - 300 + mountain_y_pos_adjustment))  
 
 class Camera:
     def __init__(self, width, height):
@@ -120,7 +256,7 @@ class World:
         # Boucle pour charger les tuiles de 0 à 155
         for i in range(172):
             
-            tile_images[i] = pygame.image.load(f"projet pygame merge paul zian/img/Cutted/{i}.png").convert_alpha()
+            tile_images[i] = pygame.image.load(f"img/Cutted/{i}.png").convert_alpha()
 
         # Initialisation de self.tile_images avec le dictionnaire des tuiles chargées
         self.tile_images = tile_images
@@ -152,7 +288,7 @@ class World:
 
 class Player:
     def __init__(self, x, y):
-        link_img = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
+        link_img = "img/mouvement/hidl/animation stand1.png"
         self.img = pygame.image.load(link_img).convert_alpha()
         self.image = pygame.transform.scale(self.img, (40, 40))
         self.rect = self.image.get_rect()
@@ -406,7 +542,7 @@ class Player:
 class Enemy(pygame.sprite.Sprite):
 	def __init__(self, x, y):
 		pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.image.load('projet pygame merge paul zian/img/Cutted/171.png')
+		self.image = pygame.image.load('img/Cutted/171.png')
 		self.rect = self.image.get_rect()
 		self.rect.x = x
 		self.rect.y = y
@@ -422,7 +558,7 @@ class Enemy(pygame.sprite.Sprite):
    
 
 
-file_path = 'projet pygame merge paul zian/map/2map.txt'
+file_path = 'map/2map.txt'
 
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
@@ -431,6 +567,10 @@ player = Player(500, screen_height - 200)
 camera = Camera(world.width, world.height)
 blob_group = pygame.sprite.Group()
 
+
+main_menu()
+
+music.play(-1)
 run = True
 while run:
     start = pygame.time.get_ticks() 
@@ -506,7 +646,13 @@ while run:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            pygame.quit()
+            sys.exit() 
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+              music.set_volume(0.15)
+              pause_menu()  # Affiche le menu pause si la touche Echap est enfoncée
+  
 
     targetTime = 1000 / fps
     if dt < targetTime:
