@@ -6,7 +6,7 @@ music = pygame.mixer.Sound("Antoine/assets/music.mp3")
 music.set_volume(0.55) 
 music.play()
 
-#Quand on entre dans le menu, baisser le son 
+# Quand on entre dans le menu, baisser le son 
  
 music.set_volume(0.15)
 
