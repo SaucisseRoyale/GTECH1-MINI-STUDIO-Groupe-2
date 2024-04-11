@@ -23,17 +23,17 @@ blob_group = pygame.sprite.Group()
 
 
 font = pygame.font.SysFont('Arial', 30)
-res = "img/mouvement/hidl/animation stand1.png"
-animations_walk = ["img/mouvement/run/course1.png", "img/mouvement/run/course2.png", "img/mouvement/run/course3.png"]
-animations_standing = ["img/mouvement/hidl/animation stand1.png", "img/mouvement/hidl/animation stand2.png", "img/mouvement/hidl/animation stand3.png", "img/mouvement/hidl/animation stand4.png", "img/mouvement/hidl/animation stand5.png"]
-animations_air_jump = ["img/mouvement/double jump/double jump1.png", "img/mouvement/double jump/double jump2.png", "img/mouvement/double jump/double jump3.png", "img/mouvement/double jump/double jump4.png"]
-animations_jump = ["img/mouvement/run jump/run_jump1.png", "img/mouvement/run jump/run_jump2.png", "img/mouvement/run jump/run_jump3.png", "img/mouvement/run jump/run_jump4.png"]
-animations_monte = ["img/mouvement/run jump/run_jump5.png", "img/mouvement/run jump/run_jump6.png"]
-animations_falling = ["img/mouvement/run jump/run_jump7.png", "img/mouvement/run jump/run_jump8.png"]
-animations_landing = ["img/mouvement/run jump/run_jump9.png", "img/mouvement/run jump/run_jump10.png"]
-animations_dash = ["img/mouvement/dash/dash1.png", "img/mouvement/dash/dash2.png",]
+res = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
+animations_walk = ["projet pygame merge paul zian/img/mouvement/run/course1.png", "projet pygame merge paul zian/img/mouvement/run/course2.png", "projet pygame merge paul zian/img/mouvement/run/course3.png"]
+animations_standing = ["projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand2.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand3.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand4.png", "projet pygame merge paul zian/img/mouvement/hidl/animation stand5.png"]
+animations_air_jump = ["projet pygame merge paul zian/img/mouvement/double jump/double jump1.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump2.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump3.png", "projet pygame merge paul zian/img/mouvement/double jump/double jump4.png"]
+animations_jump = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump1.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump2.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump3.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump4.png"]
+animations_monte = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump5.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump6.png"]
+animations_falling = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump7.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump8.png"]
+animations_landing = ["projet pygame merge paul zian/img/mouvement/run jump/run_jump9.png", "projet pygame merge paul zian/img/mouvement/run jump/run_jump10.png"]
+animations_dash = ["projet pygame merge paul zian/img/mouvement/dash/dash1.png", "img/mouvement/dash/dash2.png",]
 animations_start_slide = ["img/mouvement/slide/slide1.png"]
-animations_slide = ["img/mouvement/slide/slide2.png", "img/mouvement/slide/slide3.png"]
+animations_slide = ["projet pygame merge paul zian/img/mouvement/slide/slide2.png", "projet pygame merge paul zian/img/mouvement/slide/slide3.png"]
 #define colours
 
 # Couleurs
@@ -49,7 +49,7 @@ font = pygame.font.Font(None, 36)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Platformer')
 
-music = pygame.mixer.Sound("assets/son/music.mp3")
+music = pygame.mixer.Sound("projet pygame merge paul zian/assets/son/music.mp3")
 music.set_volume(0.55) 
 
 # ------ MENU
@@ -64,8 +64,8 @@ def draw_text(text, font, color, surface, x, y):
 
 # Fonction pour le menu principal
 def main_menu():
-    background_img = pygame.image.load('assets/menu/background2.png')
-    title_img = pygame.image.load('assets/menu/titre_du_jeu.png')
+    background_img = pygame.image.load('projet pygame merge paul zian/assets/menu/background2.png')
+    title_img = pygame.image.load('projet pygame merge paul zian/assets/menu/titre_du_jeu.png')
 
     # Redimensionne l'image de fond pour couvrir toute la fenêtre
     background_img = pygame.transform.scale(background_img, (screen_width, screen_height))
@@ -101,7 +101,7 @@ def main_menu():
 # Fonction pour le menu d'options
 def options_menu():
     # Charge une image pour le fond du menu d'options
-    options_background_img = pygame.image.load('assets/menu/background2.png')
+    options_background_img = pygame.image.load('projet pygame merge paul zian/assets/menu/background2.png')
     options_background_img = pygame.transform.scale(options_background_img, (screen_width, screen_height))
 
     # Position de la barre de volume
@@ -137,9 +137,9 @@ def options_menu():
 # Fonction pour le menu pause
 def pause_menu():
     # Chargement des images des boutons
-    resume_button_img = pygame.image.load('assets/menu/Resume.png')
-    exit_button_img = pygame.image.load('assets/menu/exit.png')
-    options_button_img = pygame.image.load('assets/menu/options.png')  # Bouton pour ouvrir le menu d'options
+    resume_button_img = pygame.image.load('projet pygame merge paul zian/assets/menu/Resume.png')
+    exit_button_img = pygame.image.load('projet pygame merge paul zian/assets/menu/exit.png')
+    options_button_img = pygame.image.load('projet pygame merge paul zian/assets/menu/options.png')  # Bouton pour ouvrir le menu d'options
 
     # Redimensionnement des images des boutons proportionnellement à la taille de l'écran
     button_width = int(screen_width * 0.25)
@@ -186,8 +186,8 @@ clock = pygame.time.Clock()
 fps = 60
 dt = 0
 
-background_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
-sky_img = pygame.image.load('World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
+background_img = pygame.image.load('projet pygame merge paul zian/World_Editor/LevelEditor-main/img/Background/background_immeubles.png').convert_alpha()
+sky_img = pygame.image.load('projet pygame merge paul zian/World_Editor/LevelEditor-main/img/Background/sky_cloud.png').convert_alpha()
 
 from enum import Enum
 class FaceCollision(Enum):
@@ -256,7 +256,7 @@ class World:
         # Boucle pour charger les tuiles de 0 à 155
         for i in range(172):
             
-            tile_images[i] = pygame.image.load(f"img/Cutted/{i}.png").convert_alpha()
+            tile_images[i] = pygame.image.load(f"projet pygame merge paul zian/img/Cutted/{i}.png").convert_alpha()
 
         # Initialisation de self.tile_images avec le dictionnaire des tuiles chargées
         self.tile_images = tile_images
@@ -288,7 +288,7 @@ class World:
 
 class Player:
     def __init__(self, x, y):
-        link_img = "img/mouvement/hidl/animation stand1.png"
+        link_img = "projet pygame merge paul zian/img/mouvement/hidl/animation stand1.png"
         self.img = pygame.image.load(link_img).convert_alpha()
         self.image = pygame.transform.scale(self.img, (40, 40))
         self.rect = self.image.get_rect()
@@ -542,7 +542,7 @@ class Player:
 class Enemy(pygame.sprite.Sprite):
 	def __init__(self, x, y):
 		pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.image.load('img/Cutted/171.png')
+		self.image = pygame.image.load('projet pygame merge paul zian/img/Cutted/171.png')
 		self.rect = self.image.get_rect()
 		self.rect.x = x
 		self.rect.y = y
@@ -558,7 +558,7 @@ class Enemy(pygame.sprite.Sprite):
    
 
 
-file_path = 'map/2map.txt'
+file_path = 'projet pygame merge paul zian/map/2map.txt'
 
 with open(file_path, 'r') as file:
     world_data = [list(map(int, line.strip().split(','))) for line in file]
